@@ -37,7 +37,6 @@ import kotlinx.coroutines.delay
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             MemingoAppTheme {
                 var showSplash by remember { mutableStateOf(true) }
@@ -85,7 +84,7 @@ fun MainScreen() {
             }
         }
 
-        // A sample button
+
         Button(
             onClick = { /* Add action here */ },
             modifier = Modifier.align(Alignment.CenterHorizontally)
