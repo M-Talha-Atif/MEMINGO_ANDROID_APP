@@ -1,6 +1,7 @@
 package com.umt.memingoapp
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +21,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,17 +36,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.umt.memingoapp.models.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
 
 
 @Preview
 @Composable
 fun SignUpFormPreview(){
-    SignUpForm()
+    val mockNavController = rememberNavController()
+    SignUpForm( mockNavController)
 }
 
 @Composable
-fun SignUpForm() {
+fun SignUpForm(navController: NavHostController) {
+
+    var username by remember { mutableStateOf("")}
+    var email by remember { mutableStateOf("")}
+    var confirmPassword by remember { mutableStateOf("")}
+    var password by remember { mutableStateOf("")}
 
     Surface {
         TopHeader()
@@ -86,21 +101,21 @@ fun SignUpForm() {
             }
 
             SimpleField(
-                onChange = {}, value = "", modifier = Modifier.fillMaxWidth(),
+                onChange = { username = it }, value = username, modifier = Modifier.fillMaxWidth(),
                 label ="Username", placeholder = "Enter your username"
                 , startIcon = leadingIconUserName)
             Spacer(Modifier.height(16.dp))
 
             SimpleField(
-                onChange = {}, value = "", modifier = Modifier.fillMaxWidth(),
+                onChange = {}, value = email, modifier = Modifier.fillMaxWidth(),
                 label ="Email", placeholder = "Enter your email"
                 , startIcon = leadingIconEmail )
 
             Spacer(Modifier.height(16.dp))
 
             PasswordField(
-                value = "",
-                onChange = { },
+                value = password,
+                onChange = { password = it },
                 submit = { },
                 label = "Password",
                 modifier = Modifier.fillMaxWidth()
@@ -108,8 +123,8 @@ fun SignUpForm() {
             Spacer(Modifier.height(16.dp))
 
             PasswordField(
-                value = "",
-                onChange = { },
+                value = confirmPassword,
+                onChange = { confirmPassword = it },
                 label = "Confirm password",
                 submit = { },
                 modifier = Modifier.fillMaxWidth()
@@ -136,9 +151,28 @@ fun SignUpForm() {
                     style = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Normal)
                 )
                 Spacer(Modifier.width(4.dp))
-                Text("Login",
-                    style = TextStyle(color = LogoColor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "Login",
+                    style = TextStyle(
+                        color = LogoColor, // Use your logo color
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.clickable(onClick = {  navController.navigate(Screen.Login.route) }) // Make text clickable
                 )
+//                TextButton(
+//                    onClick = {  navController.navigate(Screen.Login.route) },
+//                    Modifier.padding(bottom = 8.dp)
+//                ) {
+//                    Text(
+//                        text = "Login",
+//                        style = TextStyle(
+//                            color = LogoColor,
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Bold
+//                        )
+//                    )
+//                }
             }
 
         }

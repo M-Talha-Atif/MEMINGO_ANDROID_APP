@@ -29,7 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.umt.memingoapp.navigation.MyNavHost
 import kotlinx.coroutines.delay
+import androidx.compose.runtime.*
+import androidx.navigation.compose.rememberNavController
 
 
 
@@ -39,11 +42,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MemingoAppTheme {
+                val navController = rememberNavController()
                 var showSplash by remember { mutableStateOf(true) }
                 if (showSplash) {
                     SplashScreen(onSplashEnd = { showSplash = false })
                 } else {
-                    MainScreen()
+//                    MainScreen()
+//                    GetStartedScreen()
+                    MyNavHost(navController = navController)
                 }
 
             }
