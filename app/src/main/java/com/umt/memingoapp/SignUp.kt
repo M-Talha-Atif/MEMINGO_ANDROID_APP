@@ -1,5 +1,6 @@
 package com.umt.memingoapp
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,14 +33,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.umt.memingoapp.models.AuthViewModel
 import com.umt.memingoapp.models.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
 
@@ -50,14 +56,21 @@ fun SignUpFormPreview(){
 }
 
 @Composable
-fun SignUpForm(navController: NavHostController) {
+fun SignUpForm(navController: NavHostController, authViewModel: AuthViewModel = viewModel()) {
 
-    var username by remember { mutableStateOf("")}
-    var email by remember { mutableStateOf("")}
-    var confirmPassword by remember { mutableStateOf("")}
-    var password by remember { mutableStateOf("")}
+    val username by authViewModel.username.collectAsState()
+    val confirmPassword by authViewModel.confirmPassword.collectAsState()
+    val email by authViewModel.email.collectAsState()
+    val password by authViewModel.password.collectAsState()
+
+
+    // you need to write toast outside as it gives error inside the onClick of button
+
+    var toastMessage by remember { mutableStateOf<String?>(null) } // State to hold the toast message
 
     Surface {
+
+        val context = LocalContext.current
         TopHeader()
 
         Column(
@@ -69,18 +82,29 @@ fun SignUpForm(navController: NavHostController) {
         ) {
 
 
-            Image(painter = painterResource(R.drawable.av7)
-                , contentDescription = "LoginImage",
-                modifier = Modifier.size(350.dp))
+            Image(
+                painter = painterResource(R.drawable.av7), contentDescription = "LoginImage",
+                modifier = Modifier.size(350.dp)
+            )
 //            Spacer()
 
 
-            Text("Sign Up",
-                style = TextStyle(color = Color.Black, fontSize = 18.sp, fontWeight = FontWeight.Normal)
+            Text(
+                "Sign Up",
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Normal
+                )
             )
             Spacer(Modifier.height(16.dp))
-            Text("Learn and Grow",
-                style = TextStyle(color = Color.Black, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Learn and Grow",
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
+                )
             )
             Spacer(Modifier.height(16.dp))
 
@@ -101,21 +125,27 @@ fun SignUpForm(navController: NavHostController) {
             }
 
             SimpleField(
-                onChange = { username = it }, value = username, modifier = Modifier.fillMaxWidth(),
-                label ="Username", placeholder = "Enter your username"
-                , startIcon = leadingIconUserName)
+                onChange = { authViewModel.onUsernameChanged(it)},
+                value = username,
+                modifier = Modifier.fillMaxWidth(),
+                label = "Username",
+                placeholder = "Enter your username",
+                startIcon = leadingIconUserName
+            )
             Spacer(Modifier.height(16.dp))
 
             SimpleField(
-                onChange = {}, value = email, modifier = Modifier.fillMaxWidth(),
-                label ="Email", placeholder = "Enter your email"
-                , startIcon = leadingIconEmail )
+                onChange = {
+                    authViewModel.onEmailChanged(it)
+                }, value = email, modifier = Modifier.fillMaxWidth(),
+                label = "Email", placeholder = "Enter your email", startIcon = leadingIconEmail
+            )
 
             Spacer(Modifier.height(16.dp))
 
             PasswordField(
                 value = password,
-                onChange = { password = it },
+                onChange = { authViewModel.onPasswordChanged(it)},
                 submit = { },
                 label = "Password",
                 modifier = Modifier.fillMaxWidth()
@@ -124,7 +154,7 @@ fun SignUpForm(navController: NavHostController) {
 
             PasswordField(
                 value = confirmPassword,
-                onChange = { confirmPassword = it },
+                onChange = { authViewModel.onConfirmPasswordChanged(it) },
                 label = "Confirm password",
                 submit = { },
                 modifier = Modifier.fillMaxWidth()
@@ -133,7 +163,16 @@ fun SignUpForm(navController: NavHostController) {
 
             Button(
                 onClick = {
-
+                    authViewModel.signup { isSuccess, errorMessage ->
+                        if (isSuccess) {
+                           // toastMessage = errorMessage ?: "SignUp Successful"
+                            Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
+                            navController.navigate(Screen.Login.route) // Navigate to login screen
+                        } else {
+                           // toastMessage = errorMessage ?: "SignUp failed"
+                            Toast.makeText(context, errorMessage ?: "Signup failed", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 },
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth(),
@@ -145,36 +184,31 @@ fun SignUpForm(navController: NavHostController) {
             ) {
                 Text("Sign Up")
             }
-            Spacer(Modifier.height(16.dp))
-            Row{
-                Text("Old user?",
-                    style = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Normal)
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = "Login",
-                    style = TextStyle(
-                        color = LogoColor, // Use your logo color
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.clickable(onClick = {  navController.navigate(Screen.Login.route) }) // Make text clickable
-                )
-//                TextButton(
-//                    onClick = {  navController.navigate(Screen.Login.route) },
-//                    Modifier.padding(bottom = 8.dp)
-//                ) {
-//                    Text(
-//                        text = "Login",
-//                        style = TextStyle(
-//                            color = LogoColor,
-//                            fontSize = 16.sp,
-//                            fontWeight = FontWeight.Bold
-//                        )
-//                    )
-//                }
-            }
 
+
+                Spacer(Modifier.height(16.dp))
+                Row {
+                    Text(
+                        "Old user?",
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = "Login",
+                        style = TextStyle(
+                            color = LogoColor, // Use your logo color
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.clickable(onClick = { navController.navigate(Screen.Login.route) }) // Make text clickable
+                    )
+
+                }
+
+            }
         }
     }
-}

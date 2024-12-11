@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -353,6 +354,21 @@ fun GetStartedScreen(navController: NavHostController) {
 
 @Composable
 fun homeScreenCourses(){
+
+     Column (
+         
+     ){
+
+         Text("Welcome to MEMINGO!")
+
+
+         Card ()
+         {
+             Image(painter =  painterResource(R.drawable.german), contentDescription = "German Course")
+         }
+
+
+     }
 
 
 }

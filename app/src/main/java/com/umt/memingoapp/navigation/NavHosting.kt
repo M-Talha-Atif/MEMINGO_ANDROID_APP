@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.umt.memingoapp.GetStartedScreen
 import com.umt.memingoapp.LoginForm
 import com.umt.memingoapp.SignUpForm
+import com.umt.memingoapp.homeScreen
 import com.umt.memingoapp.models.Screen
 
 @Composable
@@ -20,6 +21,9 @@ fun MyNavHost(navController: NavHostController) {
         }
         composable(Screen.SignUp.route) {
             SignUpForm(navController)
+        }
+        composable(Screen.HomeScreen.route) {
+            homeScreen(navController)
         }
     }
 }
