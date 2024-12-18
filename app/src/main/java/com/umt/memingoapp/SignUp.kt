@@ -1,5 +1,6 @@
 package com.umt.memingoapp
 
+import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -44,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.umt.memingoapp.models.AuthViewModel
+import com.umt.memingoapp.models.AuthViewModelFactory
 import com.umt.memingoapp.models.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
 
@@ -56,7 +58,7 @@ fun SignUpFormPreview(){
 }
 
 @Composable
-fun SignUpForm(navController: NavHostController, authViewModel: AuthViewModel = viewModel()) {
+fun SignUpForm(navController: NavHostController,     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(LocalContext.current.applicationContext as Application))) {
 
     val username by authViewModel.username.collectAsState()
     val confirmPassword by authViewModel.confirmPassword.collectAsState()
@@ -166,8 +168,9 @@ fun SignUpForm(navController: NavHostController, authViewModel: AuthViewModel = 
                     authViewModel.signup { isSuccess, errorMessage ->
                         if (isSuccess) {
                            // toastMessage = errorMessage ?: "SignUp Successful"
-                            Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
-                            navController.navigate(Screen.Login.route) // Navigate to login screen
+                           // Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
+//                            navController.navigate(Screen.Otp.route) // Navigate to login screen
+                            navController.navigate(Screen.Otp.route + "?email=${authViewModel.email.value}")
                         } else {
                            // toastMessage = errorMessage ?: "SignUp failed"
                             Toast.makeText(context, errorMessage ?: "Signup failed", Toast.LENGTH_SHORT).show()
@@ -200,7 +203,7 @@ fun SignUpForm(navController: NavHostController, authViewModel: AuthViewModel = 
                     Text(
                         text = "Login",
                         style = TextStyle(
-                            color = LogoColor, // Use your logo color
+                            color = LogoColor,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         ),

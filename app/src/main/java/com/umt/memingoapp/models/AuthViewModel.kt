@@ -1,18 +1,27 @@
 package com.umt.memingoapp.models
 
+import android.app.Application
+import android.content.Context
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umt.memingoapp.client.RetrofitClient
 import com.umt.memingoapp.models.requests.LoginRequest
 import com.umt.memingoapp.models.requests.SignupRequest
 import com.umt.memingoapp.models.requests.VerifyOtpRequest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(application : Application) : AndroidViewModel(application) {
 
-    private val _email = MutableStateFlow("")
+    private val context = application.applicationContext
+
+    private val sharedPreferences = context.getSharedPreferences("AuthPrefs", Context.MODE_PRIVATE)
+
+    private val _email = MutableStateFlow(getPersistedEmail())
     val email: StateFlow<String> = _email
 
     private val _password = MutableStateFlow("")
@@ -27,8 +36,13 @@ class AuthViewModel : ViewModel() {
     private val _otp = MutableStateFlow("")
     val otp: StateFlow<String> = _otp
 
+    private fun getPersistedEmail(): String {
+        return sharedPreferences.getString("email", "") ?: ""
+    }
+
     fun onEmailChanged(newEmail: String) {
         _email.value = newEmail
+        saveEmailToPreferences(newEmail) // Persist the updated email
     }
 
     fun onPasswordChanged(newPassword: String) {
@@ -62,6 +76,10 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    private fun saveEmailToPreferences(email: String) {
+        sharedPreferences.edit().putString("email", email).apply()
+    }
+
     fun signup(onResult: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
             try {
@@ -70,6 +88,8 @@ class AuthViewModel : ViewModel() {
                     password = password.value
                 )
                 val response = RetrofitClient.instance.signup(signupRequest)
+                // store the email to use it in otp
+                saveEmailToPreferences(email.value)
                 onResult(true, response.message)
             } catch (e: Exception) {
                 onResult(false, e.localizedMessage ?: "Signup failed")
@@ -77,13 +97,17 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+
+
     fun verifyOtp(onResult: (Boolean, String?) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val verifyOtpRequest = VerifyOtpRequest(
-                    email = email.value,
+                    email =  getPersistedEmail(),
                     otp = otp.value
                 )
+                Log.d("Email",  getPersistedEmail())
+                Log.d("OTP", otp.value.toString())
                 val response = RetrofitClient.instance.verifyOtp(verifyOtpRequest)
                 onResult(true, response.message)
             } catch (e: Exception) {

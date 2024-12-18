@@ -17,10 +17,8 @@ interface AuthenticationService {
     @POST("/auth/signup")
     suspend fun signup(@Body signupRequest: SignupRequest): ApiResponse
 
-    @POST("/verify-otp")
+    @POST("/auth/verify-otp")
     suspend fun verifyOtp(@Body verifyOtpRequest: VerifyOtpRequest): ApiResponse
 
-//
-//    @GET("/auth/user")
-//    suspend fun getUserDetails(): UserDetailsResponse
+
 }

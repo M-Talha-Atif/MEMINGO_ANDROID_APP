@@ -1,5 +1,6 @@
 package com.umt.memingoapp
 
+import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -42,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.umt.memingoapp.models.AuthViewModel
+import com.umt.memingoapp.models.AuthViewModelFactory
 import com.umt.memingoapp.models.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
 
@@ -54,7 +56,7 @@ fun LoginFormPreview(){
 }
 
 @Composable
-fun LoginForm(navController: NavHostController, authViewModel: AuthViewModel = viewModel()) {
+fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(LocalContext.current.applicationContext as Application))) {
     val email by authViewModel.email.collectAsState()
     val password by authViewModel.password.collectAsState()
 
