@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +36,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -112,6 +116,46 @@ fun Separator(){
 //fun SeparatorPreview(){
 //    Separator()
 //}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PhoneField(
+    value: String,
+    modifier: Modifier = Modifier,
+    onChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    startIcon: @Composable () -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+
+    TextField(
+        value = value,
+        onValueChange = {
+            // Allow only numbers and optional "+" for international numbers
+            if (it.all { char -> char.isDigit() || char == '+' }) {
+                onChange(it)
+            }
+        },
+        modifier = modifier,
+        colors = TextFieldDefaults.textFieldColors(
+            containerColor = TextFieldBackColor,
+            cursorColor = Color.Black,
+            errorTextColor = Color.Black,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+        ),
+        label = { Text(label) },
+        leadingIcon = startIcon,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Phone,
+            imeAction = ImeAction.Next
+        ),
+        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+        placeholder = { Text(placeholder) },
+        singleLine = true,
+        visualTransformation = VisualTransformation.None
+    )
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -370,5 +414,7 @@ fun homeScreenCourses(){
 
      }
 
-
 }
+
+
+

@@ -3,8 +3,10 @@ package com.umt.memingoapp
 import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,12 +16,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,6 +58,7 @@ import com.umt.memingoapp.models.AuthViewModel
 import com.umt.memingoapp.models.AuthViewModelFactory
 import com.umt.memingoapp.models.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
+import kotlin.math.exp
 
 
 @Preview
@@ -56,24 +67,22 @@ fun SignUpFormPreview(){
     val mockNavController = rememberNavController()
     SignUpForm( mockNavController)
 }
-
 @Composable
-fun SignUpForm(navController: NavHostController,     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(LocalContext.current.applicationContext as Application))) {
-
+fun SignUpForm(
+    navController: NavHostController,
+    authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(LocalContext.current.applicationContext as Application))
+) {
     val username by authViewModel.username.collectAsState()
     val confirmPassword by authViewModel.confirmPassword.collectAsState()
     val email by authViewModel.email.collectAsState()
     val password by authViewModel.password.collectAsState()
+    val phoneNumber by authViewModel.phoneNumber.collectAsState()
+    val goalDropDownText by authViewModel.goalDropDownText.collectAsState()
 
-
-    // you need to write toast outside as it gives error inside the onClick of button
-
-    var toastMessage by remember { mutableStateOf<String?>(null) } // State to hold the toast message
+    var expanded by remember { mutableStateOf(false) }
 
     Surface {
-
         val context = LocalContext.current
-        TopHeader()
 
         Column(
             verticalArrangement = Arrangement.Center,
@@ -81,15 +90,15 @@ fun SignUpForm(navController: NavHostController,     authViewModel: AuthViewMode
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-
+            TopHeader()
 
             Image(
-                painter = painterResource(R.drawable.av7), contentDescription = "LoginImage",
+                painter = painterResource(R.drawable.av7),
+                contentDescription = "LoginImage",
                 modifier = Modifier.size(350.dp)
             )
-//            Spacer()
-
 
             Text(
                 "Sign Up",
@@ -100,6 +109,7 @@ fun SignUpForm(navController: NavHostController,     authViewModel: AuthViewMode
                 )
             )
             Spacer(Modifier.height(16.dp))
+
             Text(
                 "Learn and Grow",
                 style = TextStyle(
@@ -110,44 +120,46 @@ fun SignUpForm(navController: NavHostController,     authViewModel: AuthViewMode
             )
             Spacer(Modifier.height(16.dp))
 
-            // fields section here
-            val leadingIconEmail = @Composable {
-                Icon(
-                    Icons.Default.Email,
-                    contentDescription = "email",
-                    tint = LogoColor
-                )
-            }
-            val leadingIconUserName = @Composable {
-                Icon(
-                    Icons.Default.Person,
-                    contentDescription = "person",
-                    tint = LogoColor
-                )
-            }
-
             SimpleField(
-                onChange = { authViewModel.onUsernameChanged(it)},
+                onChange = { authViewModel.onUsernameChanged(it) },
                 value = username,
                 modifier = Modifier.fillMaxWidth(),
                 label = "Username",
                 placeholder = "Enter your username",
-                startIcon = leadingIconUserName
+                startIcon = {
+                    Icon(Icons.Default.Person, contentDescription = "person", tint = LogoColor)
+                }
             )
             Spacer(Modifier.height(16.dp))
 
             SimpleField(
-                onChange = {
-                    authViewModel.onEmailChanged(it)
-                }, value = email, modifier = Modifier.fillMaxWidth(),
-                label = "Email", placeholder = "Enter your email", startIcon = leadingIconEmail
+                onChange = { authViewModel.onEmailChanged(it) },
+                value = email,
+                modifier = Modifier.fillMaxWidth(),
+                label = "Email",
+                placeholder = "Enter your email",
+                startIcon = {
+                    Icon(Icons.Default.Email, contentDescription = "email", tint = LogoColor)
+                }
+            )
+            Spacer(Modifier.height(16.dp))
+            PhoneField(
+                value = phoneNumber,
+                modifier = Modifier.fillMaxWidth(),
+                onChange = { authViewModel.onPhoneNumberTextChanged(it) },
+                label = "Phone Number",
+                placeholder = "Enter your phone number",
+                startIcon = {
+                    Icon(Icons.Default.Phone, contentDescription = "phone", tint = LogoColor)
+                }
             )
 
             Spacer(Modifier.height(16.dp))
 
+
             PasswordField(
                 value = password,
-                onChange = { authViewModel.onPasswordChanged(it)},
+                onChange = { authViewModel.onPasswordChanged(it) },
                 submit = { },
                 label = "Password",
                 modifier = Modifier.fillMaxWidth()
@@ -163,16 +175,60 @@ fun SignUpForm(navController: NavHostController,     authViewModel: AuthViewMode
             )
             Spacer(Modifier.height(16.dp))
 
+            Box {
+                Button(
+                    onClick = { expanded = !expanded },
+                    shape = RoundedCornerShape(2.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = LogoColor,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween, // Align Text and Icon at opposite ends
+                        verticalAlignment = Alignment.CenterVertically // Center align items vertically
+                    ) {
+                        Text(goalDropDownText) // Text at the start
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Drop Down of Goal Selector") // Icon at the end
+                    }
+                }
+
+//                Button(onClick = { expanded = !expanded },
+//                    shape = RoundedCornerShape(12.dp),
+//                    modifier = Modifier.fillMaxWidth(),
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = LogoColor,
+//                        contentColor = Color.White
+//                    )) {
+//                    Text(goalDropDownText)
+//                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Drop Down of Goal Selector")
+//                }
+
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.fillMaxWidth()) {
+                    val goals = listOf("Travel", "Business", "Academic", "Personal Growth")
+                    goals.forEach { goal ->
+                        DropdownMenuItem(
+                            text = { Text(goal) },
+                            onClick = {
+                                authViewModel.onGoalDropDownTextChanged(goal)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+
             Button(
                 onClick = {
                     authViewModel.signup { isSuccess, errorMessage ->
                         if (isSuccess) {
-                           // toastMessage = errorMessage ?: "SignUp Successful"
-                           // Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
-//                            navController.navigate(Screen.Otp.route) // Navigate to login screen
                             navController.navigate(Screen.Otp.route + "?email=${authViewModel.email.value}")
                         } else {
-                           // toastMessage = errorMessage ?: "SignUp failed"
                             Toast.makeText(context, errorMessage ?: "Signup failed", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -183,35 +239,251 @@ fun SignUpForm(navController: NavHostController,     authViewModel: AuthViewMode
                     containerColor = LogoColor,
                     contentColor = Color.White
                 )
-
             ) {
                 Text("Sign Up")
             }
 
+            Spacer(Modifier.height(16.dp))
 
-                Spacer(Modifier.height(16.dp))
-                Row {
-                    Text(
-                        "Old user?",
-                        style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal
-                        )
+            Row {
+                Text(
+                    "Old user?",
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal
                     )
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = "Login",
-                        style = TextStyle(
-                            color = LogoColor,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = Modifier.clickable(onClick = { navController.navigate(Screen.Login.route) }) // Make text clickable
-                    )
-
-                }
-
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = "Login",
+                    style = TextStyle(
+                        color = LogoColor,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.clickable(onClick = { navController.navigate(Screen.Login.route) })
+                )
             }
         }
     }
+}
+
+
+//@Composable
+//fun SignUpForm(navController: NavHostController,     authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(LocalContext.current.applicationContext as Application))) {
+//
+//    val username by authViewModel.username.collectAsState()
+//    val confirmPassword by authViewModel.confirmPassword.collectAsState()
+//    val email by authViewModel.email.collectAsState()
+//    val password by authViewModel.password.collectAsState()
+//
+//    val goalDropDownText by authViewModel.goalDropDownText.collectAsState()
+//    var expanded by remember { mutableStateOf(false) }
+//
+//    // you need to write toast outside as it gives error inside the onClick of button
+//
+//    var toastMessage by remember { mutableStateOf<String?>(null) } // State to hold the toast message
+//
+//    Surface {
+//
+//        val context = LocalContext.current
+//
+//
+//
+//        Column(
+//            verticalArrangement = Arrangement.Center,
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(horizontal = 30.dp)
+//                .verticalScroll(rememberScrollState())
+//        ) {
+//
+//            TopHeader()
+//
+//
+//            Image(
+//                painter = painterResource(R.drawable.av7), contentDescription = "LoginImage",
+//                modifier = Modifier.size(350.dp)
+//            )
+////            Spacer()
+//
+//
+//            Text(
+//                "Sign Up",
+//                style = TextStyle(
+//                    color = Color.Black,
+//                    fontSize = 18.sp,
+//                    fontWeight = FontWeight.Normal
+//                )
+//            )
+//            Spacer(Modifier.height(16.dp))
+//            Text(
+//                "Learn and Grow",
+//                style = TextStyle(
+//                    color = Color.Black,
+//                    fontSize = 28.sp,
+//                    fontWeight = FontWeight.Bold
+//                )
+//            )
+//            Spacer(Modifier.height(16.dp))
+//
+//            // fields section here
+//            val leadingIconEmail = @Composable {
+//                Icon(
+//                    Icons.Default.Email,
+//                    contentDescription = "email",
+//                    tint = LogoColor
+//                )
+//            }
+//            val leadingIconUserName = @Composable {
+//                Icon(
+//                    Icons.Default.Person,
+//                    contentDescription = "person",
+//                    tint = LogoColor
+//                )
+//            }
+//
+//            SimpleField(
+//                onChange = { authViewModel.onUsernameChanged(it)},
+//                value = username,
+//                modifier = Modifier.fillMaxWidth(),
+//                label = "Username",
+//                placeholder = "Enter your username",
+//                startIcon = leadingIconUserName
+//            )
+//            Spacer(Modifier.height(16.dp))
+//
+//            SimpleField(
+//                onChange = {
+//                    authViewModel.onEmailChanged(it)
+//                }, value = email, modifier = Modifier.fillMaxWidth(),
+//                label = "Email", placeholder = "Enter your email", startIcon = leadingIconEmail
+//            )
+//
+//            Spacer(Modifier.height(16.dp))
+//
+//            PasswordField(
+//                value = password,
+//                onChange = { authViewModel.onPasswordChanged(it)},
+//                submit = { },
+//                label = "Password",
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//            Spacer(Modifier.height(16.dp))
+//
+//            PasswordField(
+//                value = confirmPassword,
+//                onChange = { authViewModel.onConfirmPasswordChanged(it) },
+//                label = "Confirm password",
+//                submit = { },
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//
+//            Spacer(Modifier.height(16.dp))
+//
+//            Box {
+//                Button(onClick = {
+//                    expanded = !expanded
+//
+//                }) {
+//
+//                    Text(goalDropDownText)
+//                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Drop Down of Goal Selector")
+//
+//                }
+//
+//                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+//                    DropdownMenuItem(
+//                        text = { Text("Travel") },
+//                        onClick = {
+//
+//                            goalDropDownText = "Travel"
+//                            expanded = !expanded
+//                        }
+//                    )
+//                    DropdownMenuItem(
+//                        text = { Text("Business") },
+//                        onClick = {
+//
+//                            goalDropDownText = "Business"
+//                            expanded = !expanded
+//                        }
+//                    )
+//
+//                    DropdownMenuItem(
+//                        text = { Text("Academic") },
+//                        onClick = {
+//
+//                            goalDropDownText = "Academic"
+//                            expanded = !expanded
+//                        }
+//                    )
+//
+//                    DropdownMenuItem(
+//                        text = { Text("Personal Growth") },
+//                        onClick = {
+//                            goalDropDownText = "Personal Growth"
+//                            expanded = !expanded
+//                        }
+//                    )
+//                }
+//
+//            }
+//            Spacer(Modifier.height(16.dp))
+//
+//
+//
+//            Button(
+//                onClick = {
+//                    authViewModel.signup { isSuccess, errorMessage ->
+//                        if (isSuccess) {
+//                           // toastMessage = errorMessage ?: "SignUp Successful"
+//                           // Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
+////                            navController.navigate(Screen.Otp.route) // Navigate to login screen
+//                            navController.navigate(Screen.Otp.route + "?email=${authViewModel.email.value}")
+//                        } else {
+//                           // toastMessage = errorMessage ?: "SignUp failed"
+//                            Toast.makeText(context, errorMessage ?: "Signup failed", Toast.LENGTH_SHORT).show()
+//                        }
+//                    }
+//                },
+//                shape = RoundedCornerShape(12.dp),
+//                modifier = Modifier.fillMaxWidth(),
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = LogoColor,
+//                    contentColor = Color.White
+//                )
+//
+//            ) {
+//                Text("Sign Up")
+//            }
+//
+//
+//                Spacer(Modifier.height(16.dp))
+//                Row {
+//                    Text(
+//                        "Old user?",
+//                        style = TextStyle(
+//                            color = Color.Black,
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Normal
+//                        )
+//                    )
+//                    Spacer(Modifier.width(4.dp))
+//                    Text(
+//                        text = "Login",
+//                        style = TextStyle(
+//                            color = LogoColor,
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Bold
+//                        ),
+//                        modifier = Modifier.clickable(onClick = { navController.navigate(Screen.Login.route) }) // Make text clickable
+//                    )
+//
+//                }
+//
+//            }
+//        }
+//    }

@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
@@ -62,14 +64,17 @@ fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel
 
     Surface {
         val context = LocalContext.current
-        TopHeader()
+//        TopHeader()
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
+                .verticalScroll(rememberScrollState())
         ) {
+
+            TopHeader()
             Image(
                 painter = painterResource(R.drawable.av3),
                 contentDescription = "LoginImage",

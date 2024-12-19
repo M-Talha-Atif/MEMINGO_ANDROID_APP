@@ -36,6 +36,23 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
     private val _otp = MutableStateFlow("")
     val otp: StateFlow<String> = _otp
 
+    private val _goalDropDownText = MutableStateFlow("Select Goal")
+    val goalDropDownText: StateFlow<String> = _goalDropDownText
+
+
+    private val _phoneNumber = MutableStateFlow("")
+    val phoneNumber: StateFlow<String> = _phoneNumber
+
+
+    fun onPhoneNumberTextChanged(number: String) {
+        _phoneNumber.value = number
+    }
+
+    fun onGoalDropDownTextChanged(newGoal: String) {
+        _goalDropDownText.value = newGoal
+    }
+
+
     private fun getPersistedEmail(): String {
         return sharedPreferences.getString("email", "") ?: ""
     }
@@ -85,7 +102,9 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
             try {
                 val signupRequest = SignupRequest(
                     email = email.value,
-                    password = password.value
+                    password = password.value,
+                    phone = phoneNumber.value,
+                    learning_goal = goalDropDownText.value
                 )
                 val response = RetrofitClient.instance.signup(signupRequest)
                 // store the email to use it in otp
