@@ -7,11 +7,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.umt.memingoapp.CourseSelectionScreen
 import com.umt.memingoapp.GetStartedScreen
 import com.umt.memingoapp.LoginForm
 import com.umt.memingoapp.OtpScreen
 import com.umt.memingoapp.SignUpForm
-import com.umt.memingoapp.homeScreen
 import com.umt.memingoapp.models.Screen
 
 @Composable
@@ -27,7 +27,14 @@ fun MyNavHost(navController: NavHostController) {
             SignUpForm(navController)
         }
         composable(Screen.HomeScreen.route) {
-            homeScreen(navController)
+          CourseSelectionScreen(navController)
+//            CourseSelectionScreen(
+//                onNavigateToLesson = { courseId ->
+//                   // navController.navigate("lesson/$courseId")
+//                },
+//                navController
+//            )
+
         }
 //        // Otp screen now accepts an email argument
 //        composable(

@@ -1,10 +1,9 @@
-package com.umt.memingoapp.models
+package com.umt.memingoapp.viewModels
 
 import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umt.memingoapp.client.RetrofitClient
 import com.umt.memingoapp.models.requests.LoginRequest
@@ -86,6 +85,8 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
                     password = password.value
                 )
                 val response = RetrofitClient.instance.login(loginRequest)
+                // Save token to SharedPreferences
+                sharedPreferences.edit().putString("token", response.access_token).apply()
                 onResult(true, null) // Login successful
             } catch (e: Exception) {
                 onResult(false, e.localizedMessage ?: "Login failed")

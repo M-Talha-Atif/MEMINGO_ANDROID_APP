@@ -1,8 +1,9 @@
-package com.umt.memingoapp.models
+package com.umt.memingoapp.viewModelFactories
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.umt.memingoapp.viewModels.AuthViewModel
 
 class AuthViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

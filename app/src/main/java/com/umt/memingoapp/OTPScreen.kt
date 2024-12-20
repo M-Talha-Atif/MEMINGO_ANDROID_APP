@@ -14,16 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.umt.memingoapp.models.AuthViewModel
-import com.umt.memingoapp.models.AuthViewModelFactory
+import com.umt.memingoapp.viewModels.AuthViewModel
+import com.umt.memingoapp.viewModelFactories.AuthViewModelFactory
 import com.umt.memingoapp.models.Screen
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 //@Preview(showSystemUi = true, showBackground = true)
@@ -79,11 +75,11 @@ fun OtpScreen(
 
                     else {
 //                        // Handle error message
-//                        Toast.makeText(context, "Error : ${message}!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Error : ${message}!", Toast.LENGTH_SHORT).show()
 
-                        CoroutineScope(Dispatchers.Main).launch {
-                            Toast.makeText(context, "Error : ${message}!", Toast.LENGTH_SHORT).show()
-                        }
+//                        CoroutineScope(Dispatchers.Main).launch {
+//                            Toast.makeText(context, "Error : ${message}!", Toast.LENGTH_SHORT).show()
+//                        }
 
 
                     }
