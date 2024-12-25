@@ -2,12 +2,14 @@ package com.umt.memingoapp
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -20,6 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,6 +38,9 @@ import com.umt.memingoapp.viewmodels.CourseViewModel
 import com.umt.memingoapp.viewmodels.ResultType
 import kotlinx.coroutines.launch
 
+
+
+
 @Composable
 fun CourseSelectionScreen(
     navController: NavHostController,
@@ -44,7 +50,9 @@ fun CourseSelectionScreen(
 ) {
     val scope = rememberCoroutineScope()
     var courses by remember { mutableStateOf<List<Language>?>(emptyList()) }
+
     var showAddLanguageDialog by remember { mutableStateOf(false) }
+
     var selectedLanguageId by remember { mutableStateOf<String?>(null) }
     var showError by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(true) }
@@ -88,21 +96,23 @@ fun CourseSelectionScreen(
     }
 
     // Display grid of languages or error/loading states
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
         when {
             isLoading -> LoadingIndicator()
             showError != null -> ErrorMessage(message = showError!!)
             else -> {
                 if (courses!=null) {
-                    CourseGrid(courses = courses!!) {
-                        selectedLanguageId = it
-                        showAddLanguageDialog = true
-                    }
+//                    CourseGrid(courses = courses!!) {
+//                        selectedLanguageId = it
+//
+//                    }
+                    CourseGrid(
+                        courses = courses!!,
+                        onCourseSelected = { selectedLanguageId = it },
+                        onAddLanguage = { showAddLanguageDialog = true }
+                    )
                 }
-                // Add Language Button
-                Button(onClick = { showAddLanguageDialog = true }) {
-                    Text("Add New Language")
-                }
+
             }
         }
     }
@@ -111,18 +121,117 @@ fun CourseSelectionScreen(
 @Composable
 private fun CourseGrid(
     courses: List<Language>,
-    onCourseSelected: (String) -> Unit
+    onCourseSelected: (String) -> Unit,
+    onAddLanguage: () -> Unit
 ) {
+    val context = LocalContext.current
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 200.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(courses) { course ->
-            CourseCard(course = course, onClick = { onCourseSelected(course.id) })
+            CourseCard(course = course, onClick = {
+
+//                onCourseSelected(course.id)
+                Toast.makeText(context, "To be Implemented Soon, Stay tuned buddy!!!", Toast.LENGTH_SHORT).show()
+
+
+            }
+
+            )
+
+        }
+        // Add new language card
+        item {
+            AddLanguageCard(onAddClick = onAddLanguage)
+        }
+
+    }
+}
+
+@Composable
+private fun AddLanguageCard(
+    onAddClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(240.dp),
+        onClick = onAddClick
+    ) {
+        Box {
+
+//            Image(
+//                painter = painterResource(R.drawable.ic_add),
+//                contentDescription = "Add Language",
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(64.dp)
+//
+//            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+
+            ) {
+
+//                Spacer(modifier = Modifier.height(50.dp))
+
+
+                Text(
+                    text = "Learn a New Language",
+                    fontSize = 20.sp, // Slightly larger for better readability
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = "Explore new cultures and expand your horizons",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                    //modifier = Modifier.padding(horizontal = .dp) // Padding for smaller screens
+                )
+
+                Spacer(modifier = Modifier.weight(1f)) // Push the button to the bottom
+
+//                Button(
+//                    onClick = onAddClick,
+//                    modifier = Modifier.fillMaxWidth(),
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = LogoColor
+//                    )
+//                ) {
+//                    Text("Add")
+//                }
+                FloatingActionButton(
+                    onClick = onAddClick,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor  = LogoColor,
+                    shape = CircleShape
+                            ,
+                    elevation = FloatingActionButtonDefaults.elevation()
+
+
+                ) {
+
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_add), // Replace with your "plus" icon
+                        contentDescription = "Add Item",
+                        modifier = Modifier.size(24.dp) // Icon size
+                    )
+                }
+
+            }
         }
     }
 }
+
 
 @Composable
 private fun CourseCard(
@@ -294,8 +403,9 @@ fun LanguageDialog(
             Button(
                 onClick = {
                     selectedCourse.value?.let { course ->
-                        Log.d("Course ID", course.id)
-                        onAddLanguage(course.id)
+                        Log.d("Course title", course.title)
+                        Log.d("Course ID", course.language_id)
+                        onAddLanguage(course.language_id)
                     }
                 }
             ) {

@@ -108,6 +108,7 @@ fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel
 
                     authViewModel.login { isSuccess, errorMessage ->
                         if (isSuccess) {
+                            authViewModel.saveCredentialsToPreferences(email,password)
                             navController.navigate(Screen.HomeScreen.route) // Navigate to home screen
                         } else {
                             Toast.makeText(context, errorMessage ?: "Login failed", Toast.LENGTH_SHORT).show()

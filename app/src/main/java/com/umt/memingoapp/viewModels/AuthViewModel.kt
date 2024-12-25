@@ -87,6 +87,7 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
                 val response = RetrofitClient.instance.login(loginRequest)
                 // Save token to SharedPreferences
                 sharedPreferences.edit().putString("token", response.access_token).apply()
+
                 onResult(true, null) // Login successful
             } catch (e: Exception) {
                 onResult(false, e.localizedMessage ?: "Login failed")
@@ -96,6 +97,11 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
 
     private fun saveEmailToPreferences(email: String) {
         sharedPreferences.edit().putString("email", email).apply()
+    }
+
+    fun saveCredentialsToPreferences(email: String, password: String) {
+        sharedPreferences.edit().putString("email", email).apply()
+        sharedPreferences.edit().putString("password", password).apply()
     }
 
     fun signup(onResult: (Boolean, String?) -> Unit) {
