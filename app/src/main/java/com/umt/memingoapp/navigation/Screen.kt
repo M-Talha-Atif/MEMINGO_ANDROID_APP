@@ -1,4 +1,4 @@
-package com.umt.memingoapp.models
+package com.umt.memingoapp.navigation
 
 // Sealed class for defining routes
 sealed class Screen(val route: String) {

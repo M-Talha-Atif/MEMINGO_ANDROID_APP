@@ -1,5 +1,7 @@
 package com.umt.memingoapp.models.responses
 
+
+// here are responses when we hit an api returned by server via api
 data class LoginResponse(
     val access_token: String,
     val user: User

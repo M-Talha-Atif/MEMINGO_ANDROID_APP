@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.umt.memingoapp.client.RetrofitClient
+import com.umt.memingoapp.client.AuthenticationRetrofitClient
 import com.umt.memingoapp.models.requests.LoginRequest
 import com.umt.memingoapp.models.requests.SignupRequest
 import com.umt.memingoapp.models.requests.VerifyOtpRequest
@@ -84,7 +84,7 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
                     email = email.value,
                     password = password.value
                 )
-                val response = RetrofitClient.instance.login(loginRequest)
+                val response = AuthenticationRetrofitClient.instance.login(loginRequest)
                 // Save token to SharedPreferences
                 sharedPreferences.edit().putString("token", response.access_token).apply()
 
@@ -113,7 +113,7 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
                     phone = phoneNumber.value,
                     learning_goal = goalDropDownText.value
                 )
-                val response = RetrofitClient.instance.signup(signupRequest)
+                val response = AuthenticationRetrofitClient.instance.signup(signupRequest)
                 // store the email to use it in otp
                 saveEmailToPreferences(email.value)
                 onResult(true, response.message)
@@ -134,7 +134,7 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
                 )
                 Log.d("Email",  getPersistedEmail())
                 Log.d("OTP", otp.value.toString())
-                val response = RetrofitClient.instance.verifyOtp(verifyOtpRequest)
+                val response = AuthenticationRetrofitClient.instance.verifyOtp(verifyOtpRequest)
                 onResult(true, response.message)
             } catch (e: Exception) {
                 onResult(false, e.localizedMessage ?: "OTP verification failed")

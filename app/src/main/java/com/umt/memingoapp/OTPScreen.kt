@@ -19,14 +19,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.umt.memingoapp.viewModels.AuthViewModel
 import com.umt.memingoapp.viewModelFactories.AuthViewModelFactory
-import com.umt.memingoapp.models.Screen
+import com.umt.memingoapp.navigation.Screen
+import com.umt.memingoapp.uiComponents.OtpTextField
 
 
-//@Preview(showSystemUi = true, showBackground = true)
-//@Composable
-//fun otpScreenPreview() {
-//    OtpScreen()
-//}
 
 @Composable
 fun OtpScreen(

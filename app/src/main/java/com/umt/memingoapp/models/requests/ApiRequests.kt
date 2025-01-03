@@ -1,18 +1,19 @@
 package com.umt.memingoapp.models.requests
 
 
+// Here are our Api Requesting models like what endpoints will have data when we signup, login etc
 data class LoginRequest(
     val email: String,
     val password: String
 )
 
 data class SignupRequest(
-    val name: String = "Talha hu yar Android App se", // Temporary dummy data
+    val name: String = "Talha hu yar Android App se",
     val email: String,
     val password: String,
-    val phone: String = "1234567890", // Temporary dummy data
-    val preferred_language: String = "English", // Temporary dummy data
-    val learning_goal: String = "Business" // Temporary dummy data
+    val phone: String = "1234567890",
+    val preferred_language: String = "English",
+    val learning_goal: String = "Business"
 )
 
 data class VerifyOtpRequest(

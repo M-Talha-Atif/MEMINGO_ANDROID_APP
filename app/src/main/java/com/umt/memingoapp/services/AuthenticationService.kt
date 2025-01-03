@@ -6,7 +6,6 @@ import com.umt.memingoapp.models.responses.ApiResponse
 import com.umt.memingoapp.models.responses.LoginResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
-import retrofit2.http.GET
 
 
 

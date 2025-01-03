@@ -1,4 +1,4 @@
-package com.umt.memingoapp
+package com.umt.memingoapp.uiComponents
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*

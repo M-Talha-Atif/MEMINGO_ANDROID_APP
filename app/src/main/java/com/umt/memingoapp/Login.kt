@@ -42,8 +42,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.umt.memingoapp.viewModels.AuthViewModel
 import com.umt.memingoapp.viewModelFactories.AuthViewModelFactory
-import com.umt.memingoapp.models.Screen
+import com.umt.memingoapp.navigation.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.uiComponents.PasswordField
+import com.umt.memingoapp.uiComponents.SimpleField
 
 
 @Preview
@@ -61,7 +63,8 @@ fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel
 
     Surface {
         val context = LocalContext.current
-//        TopHeader()
+
+
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,

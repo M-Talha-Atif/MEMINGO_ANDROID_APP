@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
 import com.umt.memingoapp.R
 
+// These are my models for splash screen
 class GetStartedData(@DrawableRes val resId: Int, val title: String, val desc: String)
 // @RawRes for raw folder
 //

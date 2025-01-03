@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 
-object RetrofitClient {
+object AuthenticationRetrofitClient {
     private const val BASE_URL = "http://10.0.2.2:5000"
 
 
