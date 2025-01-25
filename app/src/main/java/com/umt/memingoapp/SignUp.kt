@@ -53,6 +53,9 @@ import com.umt.memingoapp.viewModels.AuthViewModel
 import com.umt.memingoapp.viewModelFactories.AuthViewModelFactory
 import com.umt.memingoapp.navigation.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.uiComponents.PasswordField
+import com.umt.memingoapp.uiComponents.PhoneField
+import com.umt.memingoapp.uiComponents.SimpleField
 
 
 @Preview
