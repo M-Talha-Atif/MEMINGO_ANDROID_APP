@@ -44,6 +44,7 @@ import com.umt.memingoapp.viewModels.AuthViewModel
 import com.umt.memingoapp.viewModelFactories.AuthViewModelFactory
 import com.umt.memingoapp.models.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.utils.AuthState
 
 
 @Preview
@@ -108,6 +109,7 @@ fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel
 
                     authViewModel.login { isSuccess, errorMessage ->
                         if (isSuccess) {
+                            AuthState.setLoggedIn(context, true)
                             authViewModel.saveCredentialsToPreferences(email,password)
                             navController.navigate(Screen.HomeScreen.route) // Navigate to home screen
                         } else {

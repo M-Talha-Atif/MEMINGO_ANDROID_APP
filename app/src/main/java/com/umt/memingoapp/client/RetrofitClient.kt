@@ -9,11 +9,14 @@ import okhttp3.logging.HttpLoggingInterceptor
 object RetrofitClient {
     private const val BASE_URL = "http://10.0.2.2:5000"
 
-
+//It logs the details of HTTP requests and responses (including request body) for easier troubleshooting
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
-
+//    An OkHttpClient instance is created with the logging interceptor
+//    added to it. This client is responsible for making the HTTP requests.
+//    The addInterceptor(loggingInterceptor) ensures that logging is done
+//    for every request/response.
     private val client = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
         .build()

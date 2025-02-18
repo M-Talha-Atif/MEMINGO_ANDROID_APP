@@ -1,4 +1,4 @@
-package com.umt.memingoapp.viewmodels
+package com.umt.memingoapp.viewModels
 
 import android.app.Application
 import android.util.Log
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.Dispatchers
 
-class CourseViewModel(application: Application) : AndroidViewModel(application){
+open class CourseViewModel(application: Application) : AndroidViewModel(application){
 
     private val courseRepository = CourseRepository(application.applicationContext)
 

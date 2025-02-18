@@ -34,8 +34,8 @@ import com.umt.memingoapp.models.responses.CourseResponse
 import com.umt.memingoapp.models.responses.Language
 import com.umt.memingoapp.ui.theme.LogoColor
 import com.umt.memingoapp.viewModelFactories.CourseViewModelFactory
-import com.umt.memingoapp.viewmodels.CourseViewModel
-import com.umt.memingoapp.viewmodels.ResultType
+import com.umt.memingoapp.viewModels.CourseViewModel
+import com.umt.memingoapp.viewModels.ResultType
 import kotlinx.coroutines.launch
 
 
