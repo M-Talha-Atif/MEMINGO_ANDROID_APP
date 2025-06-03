@@ -4,11 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.umt.memingoapp.CourseHomeScreen
 import com.umt.memingoapp.CourseSelectionScreen
 import com.umt.memingoapp.GetStartedScreen
 import com.umt.memingoapp.LoginForm
 import com.umt.memingoapp.OtpScreen
 import com.umt.memingoapp.SignUpForm
+import com.umt.memingoapp.lessons.AlphabetLessonScreen
 
 @Composable
 fun MyNavHost(navController: NavHostController) {
@@ -22,27 +24,31 @@ fun MyNavHost(navController: NavHostController) {
         composable(Screen.SignUp.route) {
             SignUpForm(navController)
         }
-        composable(Screen.HomeScreen.route) {
-          CourseSelectionScreen(navController)
-//            CourseSelectionScreen(
-//                onNavigateToLesson = { courseId ->
-//                   // navController.navigate("lesson/$courseId")
-//                },
-//                navController
-//            )
 
-        }
-//        // Otp screen now accepts an email argument
-//        composable(
-//            Screen.Otp.route + "?email={email}",
-//            arguments = listOf(navArgument("email") { type = NavType.StringType })
-//        ) { backStackEntry ->
-//            val email = backStackEntry.arguments?.getString("email")
-//            OtpScreen(navController = navController, authViewModel =  viewModel())
+//        composable(Screen.Otp.route) {
+//            OtpScreen(navController)
 //        }
 
-        composable(Screen.Otp.route) {
-            OtpScreen(navController)
+        composable("${Screen.Otp.route}/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            OtpScreen(navController, email)
+        }
+
+
+        composable(Screen.HomeScreen.route) {
+          CourseSelectionScreen(navController)
+
+        }
+
+
+        composable("dashboard") {
+            CourseHomeScreen(navController)
+
+        }
+
+
+        composable("alphabet_lesson") {
+            AlphabetLessonScreen(navController)
         }
     }
 }

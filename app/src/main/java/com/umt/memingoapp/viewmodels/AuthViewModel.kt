@@ -1,4 +1,4 @@
-package com.umt.memingoapp.viewModels
+package com.umt.memingoapp.viewmodels
 
 import android.app.Application
 import android.content.Context
@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AuthViewModel(application : Application) : AndroidViewModel(application) {
 
@@ -43,6 +44,14 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
     val phoneNumber: StateFlow<String> = _phoneNumber
 
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    fun setLoading(value: Boolean) {
+        _isLoading.value = value
+    }
+
+
     fun onPhoneNumberTextChanged(number: String) {
         _phoneNumber.value = number
     }
@@ -58,7 +67,6 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
 
     fun onEmailChanged(newEmail: String) {
         _email.value = newEmail
-        saveEmailToPreferences(newEmail) // Persist the updated email
     }
 
     fun onPasswordChanged(newPassword: String) {
@@ -108,6 +116,7 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 val signupRequest = SignupRequest(
+                    name = username.value,
                     email = email.value,
                     password = password.value,
                     phone = phoneNumber.value,
@@ -115,7 +124,8 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
                 )
                 val response = AuthenticationRetrofitClient.instance.signup(signupRequest)
                 // store the email to use it in otp
-                saveEmailToPreferences(email.value)
+//                saveEmailToPreferences(email.value)
+
                 onResult(true, response.message)
             } catch (e: Exception) {
                 onResult(false, e.localizedMessage ?: "Signup failed")
@@ -124,21 +134,21 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
     }
 
 
-
-    fun verifyOtp(onResult: (Boolean, String?) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun verifyOtp(email: String, onResult: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
             try {
-                val verifyOtpRequest = VerifyOtpRequest(
-                    email =  getPersistedEmail(),
-                    otp = otp.value
-                )
-                Log.d("Email",  getPersistedEmail())
-                Log.d("OTP", otp.value.toString())
-                val response = AuthenticationRetrofitClient.instance.verifyOtp(verifyOtpRequest)
+                _isLoading.value = true
+                val request = VerifyOtpRequest(email = email, otp = otp.value)
+                val response = withContext(Dispatchers.IO) {
+                    AuthenticationRetrofitClient.instance.verifyOtp(request)
+                }
+                _isLoading.value = false
                 onResult(true, response.message)
             } catch (e: Exception) {
+                _isLoading.value = false
                 onResult(false, e.localizedMessage ?: "OTP verification failed")
             }
         }
     }
+
 }

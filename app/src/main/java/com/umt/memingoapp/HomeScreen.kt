@@ -3,28 +3,35 @@ package com.umt.memingoapp
 import android.app.Application
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.ImageLoader
@@ -33,9 +40,12 @@ import coil.decode.SvgDecoder
 import com.umt.memingoapp.models.responses.CourseResponse
 import com.umt.memingoapp.models.responses.Language
 import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.uiComponents.LoadingAnimation
+import com.umt.memingoapp.uiComponents.MemingoButton
 import com.umt.memingoapp.viewModelFactories.CourseViewModelFactory
-import com.umt.memingoapp.viewmodels.CourseViewModel
 import com.umt.memingoapp.viewmodels.ResultType
+import com.umt.memingoapp.viewmodels.CourseViewModel
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 
@@ -50,28 +60,37 @@ fun CourseSelectionScreen(
 ) {
     val scope = rememberCoroutineScope()
     var courses by remember { mutableStateOf<List<Language>?>(emptyList()) }
-
     var showAddLanguageDialog by remember { mutableStateOf(false) }
-
     var selectedLanguageId by remember { mutableStateOf<String?>(null) }
     var showError by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Fetch courses on launch
-    LaunchedEffect(Unit) {
-        viewModel.getUserLanguages().collect { result ->
-            when (result) {
-                is ResultType.Success -> {
-                    courses = result.data
-                    isLoading = false
+
+
+    // Function to refresh courses
+    fun refreshCourses() {
+        isLoading = true
+        scope.launch {
+            viewModel.getUserLanguages().collect { result ->
+                when (result) {
+                    is ResultType.Success -> {
+                        courses = result.data
+                        isLoading = false
+                        errorMessage = null
+                    }
+                    is ResultType.Error -> {
+                        errorMessage = result.message
+                        isLoading = false
+                    }
+                    ResultType.Loading -> isLoading = true
                 }
-                is ResultType.Error -> {
-                    showError = result.message
-                    isLoading = false
-                }
-                ResultType.Loading -> isLoading = true
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        refreshCourses()
     }
 
     // Add Language Dialog
@@ -84,6 +103,7 @@ fun CourseSelectionScreen(
                         when (result) {
                             is ResultType.Success -> {
                                 showAddLanguageDialog = false
+                                refreshCourses()
                             }
                             is ResultType.Error -> showError = result.message
                             ResultType.Loading -> isLoading = true
@@ -95,139 +115,69 @@ fun CourseSelectionScreen(
         )
     }
 
-    // Display grid of languages or error/loading states
-    Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+    // Main content
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        // Header
+        Text(
+            text = "Choose a Course",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
+        )
+
+        Text(
+            text = "Select a language course to start your learning journey",
+            style = MaterialTheme.typography.bodyMedium,
+            color = colorScheme.onSurface.copy(alpha = 0.6f),
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        // Display grid of languages or error/loading states
         when {
             isLoading -> LoadingIndicator()
             showError != null -> ErrorMessage(message = showError!!)
             else -> {
-                if (courses!=null) {
-//                    CourseGrid(courses = courses!!) {
-//                        selectedLanguageId = it
-//
-//                    }
-                    CourseGrid(
+                if (courses != null) {
+                    CourseList(
                         courses = courses!!,
                         onCourseSelected = { selectedLanguageId = it },
-                        onAddLanguage = { showAddLanguageDialog = true }
+                        onAddLanguage = { showAddLanguageDialog = true },
+                        navController = navController
                     )
                 }
-
             }
         }
     }
 }
 
+
 @Composable
-private fun CourseGrid(
+private fun CourseList(
     courses: List<Language>,
     onCourseSelected: (String) -> Unit,
-    onAddLanguage: () -> Unit
+    onAddLanguage: () -> Unit,
+    navController: NavHostController
 ) {
     val context = LocalContext.current
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 200.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(courses) { course ->
-            CourseCard(course = course, onClick = {
-
-//                onCourseSelected(course.id)
-                Toast.makeText(context, "To be Implemented Soon, Stay tuned buddy!!!", Toast.LENGTH_SHORT).show()
-
-
-            }
-
-            )
-
-        }
-        // Add new language card
-        item {
-            AddLanguageCard(onAddClick = onAddLanguage)
-        }
-
-    }
-}
-
-@Composable
-private fun AddLanguageCard(
-    onAddClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(240.dp),
-        onClick = onAddClick
-    ) {
-        Box {
-
-//            Image(
-//                painter = painterResource(R.drawable.ic_add),
-//                contentDescription = "Add Language",
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(64.dp)
-//
-//            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-
-            ) {
-
-//                Spacer(modifier = Modifier.height(50.dp))
-
-
-                Text(
-                    text = "Learn a New Language",
-                    fontSize = 20.sp, // Slightly larger for better readability
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = "Explore new cultures and expand your horizons",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                    //modifier = Modifier.padding(horizontal = .dp) // Padding for smaller screens
-                )
-
-                Spacer(modifier = Modifier.weight(1f)) // Push the button to the bottom
-
-//                Button(
-//                    onClick = onAddClick,
-//                    modifier = Modifier.fillMaxWidth(),
-//                    colors = ButtonDefaults.buttonColors(
-//                        containerColor = LogoColor
-//                    )
-//                ) {
-//                    Text("Add")
-//                }
-                FloatingActionButton(
-                    onClick = onAddClick,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    containerColor  = LogoColor,
-                    shape = CircleShape
-                            ,
-                    elevation = FloatingActionButtonDefaults.elevation()
-
-
-                ) {
-
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_add), // Replace with your "plus" icon
-                        contentDescription = "Add Item",
-                        modifier = Modifier.size(24.dp) // Icon size
-                    )
+            CourseCard(
+                course = course,
+                onClick = {
+                    Toast.makeText(context, "To be Implemented Soon, Stay tuned buddy!!!", Toast.LENGTH_SHORT).show()
+                    navController.navigate("alphabet_lesson")
                 }
+            )
+        }
 
-            }
+        item {
+            AddCourseCard(onAddClick = onAddLanguage)
         }
     }
 }
@@ -239,71 +189,157 @@ private fun CourseCard(
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(240.dp),
-        onClick = onClick
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surfaceVariant
+        )
     ) {
-        Box {
-            // Course Image
-            Log.d("Course Image URL", course.flag)
-            Image(
-                painter = rememberAsyncImagePainter(
-                    model = course.flag,
-                    imageLoader = ImageLoader.Builder(context)
-                        .components {
-                            add(SvgDecoder.Factory())
-                        }
-                        .build(),
-                    placeholder = painterResource(R.drawable.p4),
-                    error = painterResource(R.drawable.p3)
-                ),
-                contentDescription = "${course.name} flag",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                contentScale = ContentScale.Crop
-            )
-
-            // Content
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // Flag and title row
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 12.dp)
             ) {
-                Spacer(modifier = Modifier.height(120.dp))
+                // Flag image
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(colorScheme.background)
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = course.flag,
+                            imageLoader = ImageLoader.Builder(context)
+                                .components {
+                                    add(SvgDecoder.Factory())
+                                }
+                                .build(),
+                            placeholder = painterResource(R.drawable.p4),
+                            error = painterResource(R.drawable.p3)
+                        ),
+                        contentDescription = "${course.name} flag",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
 
+                Spacer(modifier = Modifier.width(12.dp))
+
+                // Course title
                 Text(
                     text = course.name,
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = course.name?: "Start learning ${course.id} today!",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Button(
-                    onClick = onClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = LogoColor
-                    )
-                ) {
-                    Text("Start Learning")
-                }
             }
+
+            // Description
+            Text(
+                text = "Learn ${course.name} with Mermingo",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colorScheme.onSurface.copy(alpha = 0.8f),
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            // Level and topics row
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                // Level chip
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    // hexa code of green color of success ->
+                    color = Color(0xFF4CAF50).copy(alpha = 0.2f),
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Text(
+                        text = "beginner",
+                        color = Color(0xFF4CAF50),
+                        // do it bold
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+
+                // Topics count
+                Text(
+                    text = "4 topics",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
+
+            // Start button
+            MemingoButton(
+                text = "Start Learning",
+                onClick = { /* Do Something */ },
+                containerColor = Color.White,
+                textColor = LogoColor,
+                borderColors = listOf(LogoColor, Color.Cyan)
+            )
+
         }
     }
 }
 
+
+
+
+@Composable
+private fun AddCourseCard(
+    onAddClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surfaceVariant
+        ),
+        onClick = onAddClick
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_add),
+                contentDescription = "Add course",
+                tint = LogoColor,
+                modifier = Modifier.size(32.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Add New Language",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Explore more language courses",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        }
+    }
+}
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageDialog(
     onAddLanguage: (String) -> Unit,
@@ -316,18 +352,43 @@ fun LanguageDialog(
     val errorMessage = remember { mutableStateOf<String?>(null) }
     val expanded = remember { mutableStateOf(false) }
 
-    // Fetch available courses from ViewModel
+    val scaleAnim = remember { Animatable(0.8f) }
+    val scope = rememberCoroutineScope()
+
+    // Collect both available and user-added courses
+    LaunchedEffect(true) {
+        scaleAnim.animateTo(1f, tween(300))
+        val available = viewModel.getAvailableCourses()
+        val userCourses = viewModel.getUserLanguages()
+//        availableCourses.value = available.filter { course ->
+//            userCourses.none { it.id == course.id }
+//        }
+
+        isLoading.value = false
+    }
+
+
+    LaunchedEffect(true) {
+        scaleAnim.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+        )
+    }
+
     LaunchedEffect(Unit) {
+        scaleAnim.animateTo(1f, tween(300, easing = FastOutSlowInEasing))
         viewModel.getAvailableCourses().collect { result ->
             when (result) {
                 is ResultType.Success -> {
                     availableCourses.value = result.data
                     isLoading.value = false
                 }
+
                 is ResultType.Error -> {
                     errorMessage.value = result.message
                     isLoading.value = false
                 }
+
                 ResultType.Loading -> {
                     isLoading.value = true
                 }
@@ -335,89 +396,118 @@ fun LanguageDialog(
         }
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Add New Language") },
-        text = {
-            Column {
-                // Display loading spinner if courses are still loading
-                if (isLoading.value) {
-                    CircularProgressIndicator()
-                } else {
-                    // Display error message if there was an issue fetching courses
-                    errorMessage.value?.let {
-                        Text(text = "Error: $it", color = MaterialTheme.colorScheme.error)
-                    }
-
-                    // Display available courses in dropdown menu
-                    Box {
-                        // TextField as a button-like element with a label and clickable area to show dropdown
-                        Button(
-                            onClick = { expanded.value = !expanded.value },
-                            shape = RoundedCornerShape(2.dp),
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = LogoColor,
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween, // Align Text and Icon at opposite ends
-                                verticalAlignment = Alignment.CenterVertically // Center align items vertically
-                            ) {
-                                Text(selectedCourse.value?.title ?: "Select a course") // Display selected course or default text
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown of course selector") // Icon at the end
-                            }
-                        }
-
-                        // DropdownMenu for course selection
-                        DropdownMenu(
-                            expanded = expanded.value,
-                            onDismissRequest = { expanded.value = false },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            availableCourses.value.forEach { course ->
-                                DropdownMenuItem(
-                                    text = { Text(course.title) },
-                                    onClick = {
-                                        selectedCourse.value = course // Set selected course
-                                        expanded.value = false // Close the dropdown after selection
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                }
-
-                // Display selected course
-                selectedCourse.value?.let {
-                    Text("Selected: ${it.title}")
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    selectedCourse.value?.let { course ->
-                        Log.d("Course title", course.title)
-                        Log.d("Course ID", course.language_id)
-                        onAddLanguage(course.language_id)
-                    }
-                }
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .scale(scaleAnim.value),
+            shape = RoundedCornerShape(24.dp),
+            tonalElevation = 12.dp,
+            color = colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text("Add Language")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("Cancel")
+                Text(
+                    text = "Add New Language",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = LogoColor
+                )
+
+                when {
+                    isLoading.value -> {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(color = LogoColor)
+                        }
+                    }
+
+                    errorMessage.value != null -> {
+                        Text(
+                            text = "Error: ${errorMessage.value}",
+                            color = colorScheme.error
+                        )
+                    }
+
+                    else -> {
+                        ExposedDropdownMenuBox(
+                            expanded = expanded.value,
+                            onExpandedChange = { expanded.value = !expanded.value }
+                        ) {
+                            TextField(
+                                value = selectedCourse.value?.title ?: "",
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Select a Course") },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value)
+                                },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = TextFieldDefaults.textFieldColors(
+                                    containerColor = LogoColor.copy(alpha = 0.1f),
+                                    focusedIndicatorColor = LogoColor,
+                                    unfocusedIndicatorColor = LogoColor,
+                                    focusedLabelColor = LogoColor
+                                )
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expanded.value,
+                                onDismissRequest = { expanded.value = false }
+                            ) {
+                                availableCourses.value.forEach { course ->
+                                    DropdownMenuItem(
+                                        text = { Text(course.title) },
+                                        onClick = {
+                                            selectedCourse.value = course
+                                            expanded.value = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        selectedCourse.value?.let {
+                            Text(
+                                text = "Selected: ${it.title}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+
+                    Button(
+                        onClick = {
+                            selectedCourse.value?.let {
+                                onAddLanguage(it.language_id)
+                            }
+                        },
+                        enabled = selectedCourse.value != null,
+                        colors = ButtonDefaults.buttonColors(containerColor = LogoColor)
+                    ) {
+                        Text("Add", color = Color.White)
+                    }
+                }
             }
         }
-    )
+    }
 }
 
 
@@ -428,7 +518,7 @@ private fun LoadingIndicator() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator()
+       LoadingAnimation()
     }
 }
 
@@ -449,7 +539,7 @@ private fun ErrorMessage(message: String) {
             ) {
                 Text(
                     text = "Error",
-                    color = MaterialTheme.colorScheme.error,
+                    color = colorScheme.error,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )

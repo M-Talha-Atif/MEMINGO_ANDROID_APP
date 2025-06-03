@@ -3,6 +3,7 @@ package com.umt.memingoapp
 import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,10 +50,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.umt.memingoapp.viewModels.AuthViewModel
+import com.umt.memingoapp.viewmodels.AuthViewModel
 import com.umt.memingoapp.viewModelFactories.AuthViewModelFactory
 import com.umt.memingoapp.navigation.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.uiComponents.LoadingAnimation
 import com.umt.memingoapp.uiComponents.PasswordField
 import com.umt.memingoapp.uiComponents.PhoneField
 import com.umt.memingoapp.uiComponents.SimpleField
@@ -75,195 +77,242 @@ fun SignUpForm(
     val password by authViewModel.password.collectAsState()
     val phoneNumber by authViewModel.phoneNumber.collectAsState()
     val goalDropDownText by authViewModel.goalDropDownText.collectAsState()
+    val isLoading by authViewModel.isLoading.collectAsState() 
 
     var expanded by remember { mutableStateOf(false) }
 
     Surface {
         val context = LocalContext.current
 
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 30.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            TopHeader()
+        Box(modifier = Modifier.fillMaxSize()) {
 
-            Image(
-                painter = painterResource(R.drawable.av7),
-                contentDescription = "LoginImage",
-                modifier = Modifier.size(350.dp)
-            )
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 30.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                TopHeader()
 
-            Text(
-                "Sign Up",
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Normal
+                Image(
+                    painter = painterResource(R.drawable.av7),
+                    contentDescription = "SignUp",
+                    modifier = Modifier.size(200.dp)
                 )
-            )
-            Spacer(Modifier.height(16.dp))
 
-            Text(
-                "Learn and Grow",
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
+                Text(
+                    "Sign Up",
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal
+                    )
                 )
-            )
-            Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(16.dp))
 
-            SimpleField(
-                onChange = { authViewModel.onUsernameChanged(it) },
-                value = username,
-                modifier = Modifier.fillMaxWidth(),
-                label = "Username",
-                placeholder = "Enter your username",
-                startIcon = {
-                    Icon(Icons.Default.Person, contentDescription = "person", tint = LogoColor)
+                Text(
+                    "Learn and Grow",
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+                Spacer(Modifier.height(16.dp))
+
+                SimpleField(
+                    onChange = { authViewModel.onUsernameChanged(it) },
+                    value = username,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Username",
+                    placeholder = "Enter your username",
+                    startIcon = {
+                        Icon(Icons.Default.Person, contentDescription = "person", tint = LogoColor)
+                    }
+                )
+                Spacer(Modifier.height(16.dp))
+
+                SimpleField(
+                    onChange = { authViewModel.onEmailChanged(it) },
+                    value = email,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Email",
+                    placeholder = "Enter your email",
+                    startIcon = {
+                        Icon(Icons.Default.Email, contentDescription = "email", tint = LogoColor)
+                    }
+                )
+                Spacer(Modifier.height(16.dp))
+                PhoneField(
+                    value = phoneNumber,
+                    modifier = Modifier.fillMaxWidth(),
+                    onChange = { authViewModel.onPhoneNumberTextChanged(it) },
+                    label = "Phone Number",
+                    placeholder = "Enter your phone number",
+                    startIcon = {
+                        Icon(Icons.Default.Phone, contentDescription = "phone", tint = LogoColor)
+                    }
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+
+                PasswordField(
+                    value = password,
+                    onChange = { authViewModel.onPasswordChanged(it) },
+                    submit = { },
+                    label = "Password",
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(16.dp))
+
+                PasswordField(
+                    value = confirmPassword,
+                    onChange = { authViewModel.onConfirmPasswordChanged(it) },
+                    label = "Confirm password",
+                    submit = { },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(16.dp))
+
+                Box {
+                    Button(
+                        onClick = { expanded = !expanded },
+                        shape = RoundedCornerShape(2.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = LogoColor,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween, // Align Text and Icon at opposite ends
+                            verticalAlignment = Alignment.CenterVertically // Center align items vertically
+                        ) {
+                            Text(goalDropDownText) // Text at the start
+                            Icon(
+                                Icons.Default.ArrowDropDown,
+                                contentDescription = "Drop Down of Goal Selector"
+                            ) // Icon at the end
+                        }
+                    }
+
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val goals = listOf("Travel", "Business", "Academic", "Personal Growth")
+                        goals.forEach { goal ->
+                            DropdownMenuItem(
+                                text = { Text(goal) },
+                                onClick = {
+                                    authViewModel.onGoalDropDownTextChanged(goal)
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
                 }
-            )
-            Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(16.dp))
 
-            SimpleField(
-                onChange = { authViewModel.onEmailChanged(it) },
-                value = email,
-                modifier = Modifier.fillMaxWidth(),
-                label = "Email",
-                placeholder = "Enter your email",
-                startIcon = {
-                    Icon(Icons.Default.Email, contentDescription = "email", tint = LogoColor)
-                }
-            )
-            Spacer(Modifier.height(16.dp))
-            PhoneField(
-                value = phoneNumber,
-                modifier = Modifier.fillMaxWidth(),
-                onChange = { authViewModel.onPhoneNumberTextChanged(it) },
-                label = "Phone Number",
-                placeholder = "Enter your phone number",
-                startIcon = {
-                    Icon(Icons.Default.Phone, contentDescription = "phone", tint = LogoColor)
-                }
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-
-            PasswordField(
-                value = password,
-                onChange = { authViewModel.onPasswordChanged(it) },
-                submit = { },
-                label = "Password",
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(16.dp))
-
-            PasswordField(
-                value = confirmPassword,
-                onChange = { authViewModel.onConfirmPasswordChanged(it) },
-                label = "Confirm password",
-                submit = { },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(16.dp))
-
-            Box {
                 Button(
-                    onClick = { expanded = !expanded },
-                    shape = RoundedCornerShape(2.dp),
+                    onClick = {
+                        authViewModel.setLoading(true)
+
+                        authViewModel.signup { isSuccess, errorMessage ->
+                            if (isSuccess) {
+                                authViewModel.setLoading(false)
+                                navController.navigate("${Screen.Otp.route}/${authViewModel.email.value}")
+
+
+                            } else {
+
+                                authViewModel.setLoading(false)
+
+
+                                val message = when {
+                                    errorMessage != null -> {
+                                        when {
+                                            errorMessage.contains("AuthUserCollisionException") -> {
+                                                "This email is already registered. Please use another email or log in."
+                                            }
+
+                                            errorMessage.contains("Network Error") -> {
+                                                "Network error. Please check your connection and try again."
+                                            }
+
+                                            errorMessage.contains("weak password") -> {
+                                                "Your password is too weak. Please choose a stronger password."
+                                            }
+
+                                            else -> {
+                                                "Signup failed. $errorMessage"
+                                            }
+                                        }
+                                    }
+
+                                    else -> "Signup failed. Please check your details."
+                                }
+
+                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = LogoColor,
                         contentColor = Color.White
                     )
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween, // Align Text and Icon at opposite ends
-                        verticalAlignment = Alignment.CenterVertically // Center align items vertically
-                    ) {
-                        Text(goalDropDownText) // Text at the start
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Drop Down of Goal Selector") // Icon at the end
-                    }
+                    Text("Sign Up")
                 }
 
-//                Button(onClick = { expanded = !expanded },
-//                    shape = RoundedCornerShape(12.dp),
-//                    modifier = Modifier.fillMaxWidth(),
-//                    colors = ButtonDefaults.buttonColors(
-//                        containerColor = LogoColor,
-//                        contentColor = Color.White
-//                    )) {
-//                    Text(goalDropDownText)
-//                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Drop Down of Goal Selector")
-//                }
+                Spacer(Modifier.height(16.dp))
 
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.fillMaxWidth()) {
-                    val goals = listOf("Travel", "Business", "Academic", "Personal Growth")
-                    goals.forEach { goal ->
-                        DropdownMenuItem(
-                            text = { Text(goal) },
-                            onClick = {
-                                authViewModel.onGoalDropDownTextChanged(goal)
-                                expanded = false
-                            }
+                Row {
+                    Text(
+                        "Old user?",
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal
                         )
-                    }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = "Login",
+                        style = TextStyle(
+                            color = LogoColor,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.clickable(onClick = { navController.navigate(Screen.Login.route) })
+                    )
                 }
             }
-            Spacer(Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    authViewModel.signup { isSuccess, errorMessage ->
-                        if (isSuccess) {
-                            navController.navigate(Screen.Otp.route)
-                            // + "?email=${authViewModel.email.value}"
-                        } else {
-                            Toast.makeText(context, errorMessage ?: "Signup failed", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                },
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LogoColor,
-                    contentColor = Color.White
-                )
-            ) {
-                Text("Sign Up")
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.4f)), // dim background
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingAnimation()
+                }
             }
 
-            Spacer(Modifier.height(16.dp))
 
-            Row {
-                Text(
-                    "Old user?",
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal
-                    )
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = "Login",
-                    style = TextStyle(
-                        color = LogoColor,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.clickable(onClick = { navController.navigate(Screen.Login.route) })
-                )
-            }
         }
+
     }
 }
 

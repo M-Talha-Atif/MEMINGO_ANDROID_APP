@@ -49,12 +49,21 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation ("com.github.hitanshu-dhawan:CircularProgressBar-Compose:1.0.0-rc01")
     implementation ("androidx.compose.material:material-icons-extended:1.7.5")
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
     implementation ("io.coil-kt:coil-compose:2.4.0")
     implementation("io.coil-kt:coil-svg:2.4.0")
+
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0")
+
+    // new ones added
+
+    implementation ("com.airbnb.android:lottie-compose:6.1.0")
+
+
 
 
     implementation(libs.androidx.appcompat)
@@ -69,4 +78,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
 }

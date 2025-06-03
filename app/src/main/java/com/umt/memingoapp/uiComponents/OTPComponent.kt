@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.umt.memingoapp.ui.theme.GreyDark
 import com.umt.memingoapp.ui.theme.GreyLight
+import com.umt.memingoapp.ui.theme.LogoColor
 
 
 @Preview(showSystemUi = true)
@@ -30,6 +31,7 @@ fun otpPreview() {
         }
     )
 }
+
 @Composable
 fun OtpTextField(
     modifier: Modifier = Modifier,
@@ -66,34 +68,35 @@ fun OtpTextField(
     )
 }
 
+
 @Composable
 private fun CharView(
     index: Int,
     text: String
 ) {
-    val isFocused = text.length == index
-    val char = when {
-        index == text.length -> "0"
-        index > text.length -> ""
-        else -> text[index].toString()
+    val isFilled = index < text.length
+    val isFocused = index == text.length
+
+    val borderColor = when {
+        isFocused -> LogoColor
+        isFilled -> GreyDark
+        else -> GreyLight
     }
+
+    val char = if (isFilled) text[index].toString() else ""
+
     Text(
         modifier = Modifier
             .width(40.dp)
             .border(
-                1.dp, when {
-                    isFocused -> GreyDark
-                    else -> GreyLight
-                }, RoundedCornerShape(8.dp)
+                2.dp,
+                borderColor,
+                RoundedCornerShape(8.dp)
             )
             .padding(2.dp),
         text = char,
         style = MaterialTheme.typography.headlineMedium,
-        color = if (isFocused) {
-            GreyLight
-        } else {
-            GreyDark
-        },
+        color = borderColor,
         textAlign = TextAlign.Center
     )
 }

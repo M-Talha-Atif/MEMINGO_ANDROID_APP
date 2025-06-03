@@ -1,97 +1,346 @@
 package com.umt.memingoapp
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import androidx.navigation.compose.rememberNavController
+import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.uiComponents.AppTypography
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewDashboardScreen() {
-    DashboardScreenWithLessons()
+    val mockNavController = rememberNavController()
+   CourseHomeScreen(mockNavController )
 
 }
 
 @Composable
-fun DashboardScreenWithLessons() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Header Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Hello, Username
-            Text(
-                text = "Hello, Username",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
-            )
-
-            // Circular Profile Picture
-            Image(
-                painter = painterResource(id = R.drawable.p3), // Replace with your drawable resource
-                contentDescription = "User Profile Picture",
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
-                contentScale = ContentScale.Crop
-            )
+fun CourseHomeScreen(navController: NavController) {
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(navController)
         }
-
-        // Lessons Section
-        Text(
-            text = "Lessons",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        // Lessons List
+    ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
         ) {
-            items(lessonData) { lesson ->
-                LessonCard(lesson)
+            // Header with greeting and user profile
+            item { HeaderSection() }
+
+            // Language progress card
+            item { LanguageProgressCard() }
+
+            // Learning modes section
+            item {
+                Text(
+                    text = "Learning Modes",
+                    style = AppTypography.titleLarge,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    LearningModeCard(
+                        title = "Lessons",
+                        description = "Interactive exercises",
+                        iconRes = R.drawable.restaurant,
+                        onClick = { navController.navigate("lessons") }
+                    )
+                    LearningModeCard(
+                        title = "Stories",
+                        description = "Immerse in context",
+                        iconRes = R.drawable.teacher,
+                        onClick = { navController.navigate("stories") }
+                    )
+                    LearningModeCard(
+                        title = "AR Scan",
+                        description = "Real-world practice",
+                        iconRes = R.drawable.plane,
+                        onClick = { navController.navigate("ar_scan") }
+                    )
+                }
+            }
+
+            // Progress section
+            item {
+                LessonProgressSection(
+                    completed = 2,
+                    total = 3,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+
+            // Lessons list header
+            item {
+                Text(
+                    text = "Your Lessons",
+                    style = AppTypography.titleLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            // Lessons list
+            items(lessons) { lesson ->
+                LessonListItem(
+                    lesson = lesson,
+                    onItemClick = {
+                        if (!lesson.locked) {
+                            navController.navigate("lesson_${lesson.id}")
+                        }
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun LessonCard(lesson: Lesson) {
+private fun HeaderSection() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Good morning,",
+            style = AppTypography.titleLarge
+        )
+
+        IconButton(onClick = { /* Navigate to profile */ }) {
+            Image(
+                painter = painterResource(id = R.drawable.av1),
+                contentDescription = "Profile",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+            )
+        }
+    }
+}
+
+@Composable
+private fun LanguageProgressCard() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
+            .padding(vertical = 16.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = LogoColor.copy(alpha = 0.1f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "German",
+                    style = AppTypography.titleMedium
+                )
+                Text(
+                    text = "Intermediate",
+                    style = AppTypography.bodyMedium,
+                    color = LogoColor
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LinearProgressIndicator(
+                progress = 0.65f,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+                color = LogoColor,
+                trackColor = LogoColor.copy(alpha = 0.2f)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ProgressItem("Alphabet", "100%")
+                ProgressItem("Words", "83%")
+                ProgressItem("Sentences", "72%")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProgressItem(title: String, progress: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = title,
+            style = AppTypography.labelSmall
+        )
+        Text(
+            text = progress,
+            style = AppTypography.bodyMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun LearningModeCard(
+    title: String,
+    description: String,
+    iconRes: Int,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .width(100.dp)
+            .padding(4.dp),
+        shape = RoundedCornerShape(12.dp),
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = title,
+                modifier = Modifier.size(48.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = title,
+                style = AppTypography.labelLarge,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = description,
+                style = AppTypography.labelSmall,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun LessonProgressSection(completed: Int, total: Int, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = LogoColor.copy(alpha = 0.05f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = "Lessons Progress",
+                    style = AppTypography.titleMedium
+                )
+                Text(
+                    text = "$completed of $total completed",
+                    style = AppTypography.bodyMedium
+                )
+            }
+
+            CircularProgressIndicator(
+                progress = completed.toFloat() / total.toFloat(),
+                modifier = Modifier.size(48.dp),
+                color = LogoColor,
+                strokeWidth = 6.dp,
+                trackColor = LogoColor.copy(alpha = 0.2f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun LessonListItem(lesson: Lesson, onItemClick: () -> Unit) {
+    val isUnlocked = !lesson.locked
+    val cardBorder = if (lesson.locked) BorderStroke(1.dp, Color.Gray.copy(alpha = 0.4f)) else null
+    val iconBgColor = when {
+        lesson.locked -> Color.Gray.copy(alpha = 0.2f)
+        lesson.score >= 80 -> Color(0xFF4CAF50).copy(alpha = 0.2f)
+        lesson.score >= 50 -> Color(0xFFFFC107).copy(alpha = 0.2f)
+        else -> Color(0xFFF44336).copy(alpha = 0.2f)
+    }
+    val iconColor = when {
+        lesson.locked -> Color.Gray
+        lesson.score >= 80 -> Color(0xFF4CAF50)
+        lesson.score >= 50 -> Color(0xFFFFA000)
+        else -> Color(0xFFD32F2F)
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp, horizontal = 8.dp)
+            .alpha(if (lesson.locked) 0.6f else 1f),
+        shape = RoundedCornerShape(12.dp),
+        border = cardBorder,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        shape = RoundedCornerShape(8.dp)
+        onClick = { if (isUnlocked) onItemClick() },
+        enabled = isUnlocked
     ) {
         Row(
             modifier = Modifier
@@ -99,75 +348,132 @@ fun LessonCard(lesson: Lesson) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (lesson.locked) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = "Locked",
+                            tint = Color.Gray,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .padding(end = 6.dp)
+                        )
+                    }
+                    Text(
+                        text = lesson.title,
+                        style = AppTypography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
                 Text(
-                    text = lesson.title,
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+                    text = lesson.type,
+                    style = AppTypography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
-
-                Text(
-                    text = lesson.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-
-                Button(
-                    onClick = { /* Add your action */ },
-                    modifier = Modifier.padding(top = 8.dp)
-                ) {
-                    Text(text = lesson.buttonText)
+                if (isUnlocked) {
+                    Text(
+                        text = "Quiz: ${lesson.score}%",
+                        style = AppTypography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                        color = iconColor,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .background(iconBgColor, shape = RoundedCornerShape(12.dp))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Image(
-                painter = painterResource(id = lesson.imageRes), // Replace with your drawable resource
-                contentDescription = null,
+            Box(
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(iconBgColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = when {
+                        lesson.locked -> Icons.Default.Lock
+                        lesson.score >= 100 -> Icons.Default.Check
+                        else -> Icons.Default.PlayArrow
+                    },
+                    contentDescription = "Status Icon",
+                    tint = iconColor
+                )
+            }
         }
     }
 }
-    // Lesson Data Model
-    data class Lesson(
-        val title: String,
-        val description: String,
-        val buttonText: String,
-        val imageRes: Int
-    )
 
-// Dummy Data for Lessons
-val lessonData = listOf(
-    Lesson(
-        title = "Basics 1",
-        description = "Learn the basics of French",
-        buttonText = "Start",
-        imageRes = R.drawable.german // Replace with your drawable resource
-    ),
-    Lesson(
-        title = "Basics 2",
-        description = "Continue learning the basics of French",
-        buttonText = "Unlock",
-        imageRes = R.drawable.german // Replace with your drawable resource
-    ),
-    Lesson(
-        title = "Travel",
-        description = "Learn how to travel in France",
-        buttonText = "Unlock",
-        imageRes = R.drawable.german // Replace with your drawable resource
-    ),
-    Lesson(
-        title = "Food",
-        description = "Learn how to order food in France",
-        buttonText = "Unlock",
-        imageRes = R.drawable.german // Replace with your drawable resource
+
+
+
+val ActiveColor = Color.White
+val InactiveColor = Color.LightGray
+
+@Composable
+fun BottomNavigationBar(navController: NavController) {
+    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+
+    NavigationBar(
+        containerColor = LogoColor
+    ) {
+        BottomNavItem("home", Icons.Default.Home, "Home", navController, currentDestination)
+        BottomNavItem("profile", Icons.Default.Person, "Profile", navController, currentDestination)
+        BottomNavItem("chat", Icons.Default.Chat, "Chat", navController, currentDestination)
+        BottomNavItem("leaderboard", Icons.Default.Leaderboard, "Leaderboard", navController, currentDestination)
+    }
+}
+
+@Composable
+private fun RowScope.BottomNavItem(
+    route: String,
+    icon: ImageVector,
+    label: String,
+    navController: NavController,
+    currentRoute: String?
+) {
+    val isSelected = currentRoute == route
+    NavigationBarItem(
+        icon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = if (isSelected) ActiveColor else InactiveColor
+            )
+        },
+        label = {
+            Text(
+                text = label,
+                color = if (isSelected) ActiveColor else InactiveColor
+            )
+        },
+        selected = isSelected,
+        onClick = {
+            if (!isSelected) navController.navigate(route)
+        },
+        alwaysShowLabel = true
     )
+}
+
+
+
+// Data models
+data class Lesson(
+    val id: String,
+    val title: String,
+    val type: String,
+    val score: Int,
+    val locked: Boolean
 )
+
+val lessons = listOf(
+    Lesson("4", "Advanced Grammar", "Grammar", 0, true),
+    Lesson("1", "German Alphabet", "Pronunciation", 100, false),
+    Lesson("2", "Common Words", "Vocabulary", 83, false),
+    Lesson("3", "Basic Sentences", "Grammar", 72, false),
+    Lesson("5", "Conversation", "Speaking", 0, true)
+)
+
 
 
