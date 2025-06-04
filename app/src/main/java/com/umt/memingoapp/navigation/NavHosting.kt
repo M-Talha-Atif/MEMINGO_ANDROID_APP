@@ -25,10 +25,6 @@ fun MyNavHost(navController: NavHostController) {
             SignUpForm(navController)
         }
 
-//        composable(Screen.Otp.route) {
-//            OtpScreen(navController)
-//        }
-
         composable("${Screen.Otp.route}/{email}") { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
             OtpScreen(navController, email)
@@ -41,9 +37,9 @@ fun MyNavHost(navController: NavHostController) {
         }
 
 
-        composable("dashboard") {
-            CourseHomeScreen(navController)
-
+        composable("${Screen.Dashboard.route}/{course_id}") { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("course_id") ?: ""
+            CourseHomeScreen(navController,courseId)
         }
 
 

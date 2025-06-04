@@ -4,7 +4,7 @@ import com.umt.memingoapp.models.requests.UpdateProgressRequest
 import com.umt.memingoapp.models.responses.CourseResponse
 import com.umt.memingoapp.models.responses.LessonResponse
 import com.umt.memingoapp.models.responses.ApiResponse
-import com.umt.memingoapp.models.responses.Language
+import com.umt.memingoapp.models.responses.SingleCourseResponse
 import com.umt.memingoapp.models.responses.UserLanguagesResponse
 import retrofit2.http.*
 
@@ -27,4 +27,8 @@ interface CourseService {
 
     @GET("/auth/user/languages")
     suspend fun getUserLanguages(): UserLanguagesResponse
+
+
+    @GET("/auth/course/{course_id}")
+    suspend fun getCourseDetails(@Path("course_id") courseId: String): SingleCourseResponse
 }

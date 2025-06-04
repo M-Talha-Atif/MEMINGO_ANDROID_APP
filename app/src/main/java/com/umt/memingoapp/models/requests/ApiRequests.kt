@@ -33,3 +33,4 @@ data class UpdateProgressRequest(
     val status: String = "in_progress",
     val score: Int? = null
 )
+

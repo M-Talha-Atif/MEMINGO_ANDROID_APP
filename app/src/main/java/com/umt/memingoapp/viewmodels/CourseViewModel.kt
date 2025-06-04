@@ -8,6 +8,7 @@ import com.umt.memingoapp.models.requests.UpdateProgressRequest
 import com.umt.memingoapp.models.responses.CourseResponse
 import com.umt.memingoapp.models.responses.Language
 import com.umt.memingoapp.models.responses.LessonResponse
+import com.umt.memingoapp.models.responses.SingleCourseResponse
 import com.umt.memingoapp.models.responses.UserLanguagesResponse
 import com.umt.memingoapp.repositories.CourseRepository
 import kotlinx.coroutines.flow.Flow
@@ -87,6 +88,16 @@ class CourseViewModel(application: Application) : AndroidViewModel(application){
         } catch (e: Exception) {
             Log.d("Error in user languages", e.message.toString())
             // If there's an error, emit the error message
+            emit(ResultType.Error(e.message ?: "Unknown Error"))
+        }
+    }.flowOn(Dispatchers.IO)
+
+
+    fun getCourseDetails(courseId: String): Flow<ResultType<SingleCourseResponse>> = flow {
+        try {
+            val details = courseRepository.getCourseDetails(courseId)
+            emit(ResultType.Success(details))
+        } catch (e: Exception) {
             emit(ResultType.Error(e.message ?: "Unknown Error"))
         }
     }.flowOn(Dispatchers.IO)

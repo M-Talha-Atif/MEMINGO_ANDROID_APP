@@ -2,30 +2,12 @@ package com.umt.memingoapp
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
-import com.umt.memingoapp.ui.theme.LogoColor
-import com.umt.memingoapp.uiComponents.AppTypography
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Check
@@ -35,6 +17,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,24 +27,78 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-
+import androidx.navigation.compose.rememberNavController
+import com.umt.memingoapp.models.responses.CourseResponse
+import com.umt.memingoapp.models.responses.SingleCourseResponse
+import com.umt.memingoapp.models.responses.Topic
+import com.umt.memingoapp.navigation.Screen
+import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.uiComponents.AppTypography
+import com.umt.memingoapp.viewmodels.CourseViewModel
+import com.umt.memingoapp.viewmodels.ResultType
+import kotlinx.coroutines.flow.collectLatest
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewDashboardScreen() {
     val mockNavController = rememberNavController()
-   CourseHomeScreen(mockNavController )
-
+    // You might want to provide a mock CourseViewModel here for preview
+    CourseHomeScreen(mockNavController, "german-1")
 }
 
 @Composable
-fun CourseHomeScreen(navController: NavController) {
+fun CourseHomeScreen(
+    navController: NavController,
+    courseId: String,
+    viewModel: CourseViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
+    // State for the loaded course details and lessons
+    val courseState = remember { mutableStateOf<SingleCourseResponse?>(null) }
+    val lessonsState = remember { mutableStateListOf<Lesson>() }
+    val scope = rememberCoroutineScope()
+
+    // Replace with your selected course id logic
+    val courseId = courseId
+
+    // Fetch course details once (replace "courseId" with actual id)
+    LaunchedEffect(Unit) {
+
+        viewModel.getCourseDetails(courseId).collectLatest { result ->
+            when (result) {
+                is ResultType.Success -> {
+                    courseState.value = result.data
+                    lessonsState.clear()
+                    lessonsState.addAll(
+                        result.data.lessons.map { l ->
+                            Lesson(
+                                id = l.id,
+                                title = l.title,
+                                type = l.type,
+                                score = l.quizScore?.toInt() ?: 0,
+                                locked = l.status == "locked"
+                            )
+                        }
+                    )
+                }
+                else -> { /* Handle loading/error UI if needed */ }
+            }
+        }
+    }
+
+    val course = courseState.value
+    val lessons = lessonsState
+
+    // Calculate completed/total lessons
+    val totalLessons = course?.totalLessons ?: lessons.size
+    val completedLessons = lessons.count { !it.locked && it.score >= 100 }
+
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(navController)
+            BottomNavigationBar(navController,courseId)
         }
     ) { padding ->
         LazyColumn(
@@ -73,8 +110,19 @@ fun CourseHomeScreen(navController: NavController) {
             // Header with greeting and user profile
             item { HeaderSection() }
 
-            // Language progress card
-            item { LanguageProgressCard() }
+            // Language progress card using course info
+            item {
+                if (course != null) {
+                    LanguageProgressCard(
+                        language = course.title,
+                        level = course.difficulty,
+                        progress = (course.overallProgress / 100f).coerceIn(0.0, 1.0).toFloat(),
+                        topics = course.topics
+                    )
+                } else {
+                    LanguageProgressCard()
+                }
+            }
 
             // Learning modes section
             item {
@@ -110,11 +158,11 @@ fun CourseHomeScreen(navController: NavController) {
                 }
             }
 
-            // Progress section
+            // Progress section (dynamic from course/lessons)
             item {
                 LessonProgressSection(
-                    completed = 2,
-                    total = 3,
+                    completed = completedLessons,
+                    total = totalLessons,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
             }
@@ -168,7 +216,16 @@ private fun HeaderSection() {
 }
 
 @Composable
-private fun LanguageProgressCard() {
+private fun LanguageProgressCard(
+    language: String = "German",
+    level: String = "Intermediate",
+    progress: Float = 0.65f,
+    topics: List<Topic> = listOf(
+        Topic("1", "Alphabet", 100.0),
+        Topic("2", "Words", 83.0),
+        Topic("3", "Sentences", 72.0)
+    )
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,11 +243,11 @@ private fun LanguageProgressCard() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "German",
+                    text = language,
                     style = AppTypography.titleMedium
                 )
                 Text(
-                    text = "Intermediate",
+                    text = level,
                     style = AppTypography.bodyMedium,
                     color = LogoColor
                 )
@@ -199,7 +256,7 @@ private fun LanguageProgressCard() {
             Spacer(modifier = Modifier.height(8.dp))
 
             LinearProgressIndicator(
-                progress = 0.65f,
+                progress = progress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp),
@@ -213,9 +270,9 @@ private fun LanguageProgressCard() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                ProgressItem("Alphabet", "100%")
-                ProgressItem("Words", "83%")
-                ProgressItem("Sentences", "72%")
+                topics.take(3).forEach {
+                    ProgressItem(it.name, "${it.progress.toInt()}%")
+                }
             }
         }
     }
@@ -235,6 +292,7 @@ private fun ProgressItem(title: String, progress: String) {
         )
     }
 }
+
 
 @Composable
 private fun LearningModeCard(
@@ -315,19 +373,17 @@ private fun LessonProgressSection(completed: Int, total: Int, modifier: Modifier
 @Composable
 private fun LessonListItem(lesson: Lesson, onItemClick: () -> Unit) {
     val isUnlocked = !lesson.locked
-    val cardBorder = if (lesson.locked) BorderStroke(1.dp, Color.Gray.copy(alpha = 0.4f)) else null
-    val iconBgColor = when {
-        lesson.locked -> Color.Gray.copy(alpha = 0.2f)
-        lesson.score >= 80 -> Color(0xFF4CAF50).copy(alpha = 0.2f)
-        lesson.score >= 50 -> Color(0xFFFFC107).copy(alpha = 0.2f)
-        else -> Color(0xFFF44336).copy(alpha = 0.2f)
-    }
+
     val iconColor = when {
         lesson.locked -> Color.Gray
         lesson.score >= 80 -> Color(0xFF4CAF50)
         lesson.score >= 50 -> Color(0xFFFFA000)
         else -> Color(0xFFD32F2F)
     }
+
+    val iconBgColor = iconColor.copy(alpha = 0.2f)
+
+    val cardBorder = BorderStroke(1.dp, iconColor.copy(alpha = 0.4f))
 
     Card(
         modifier = Modifier
@@ -408,17 +464,18 @@ private fun LessonListItem(lesson: Lesson, onItemClick: () -> Unit) {
 
 
 
+
 val ActiveColor = Color.White
 val InactiveColor = Color.LightGray
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(navController: NavController, courseId: String) {
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
 
     NavigationBar(
         containerColor = LogoColor
     ) {
-        BottomNavItem("home", Icons.Default.Home, "Home", navController, currentDestination)
+        BottomNavItem( route = "${Screen.Dashboard.route}/$courseId", Icons.Default.Home, "Home", navController, currentDestination)
         BottomNavItem("profile", Icons.Default.Person, "Profile", navController, currentDestination)
         BottomNavItem("chat", Icons.Default.Chat, "Chat", navController, currentDestination)
         BottomNavItem("leaderboard", Icons.Default.Leaderboard, "Leaderboard", navController, currentDestination)
@@ -467,13 +524,6 @@ data class Lesson(
     val locked: Boolean
 )
 
-val lessons = listOf(
-    Lesson("4", "Advanced Grammar", "Grammar", 0, true),
-    Lesson("1", "German Alphabet", "Pronunciation", 100, false),
-    Lesson("2", "Common Words", "Vocabulary", 83, false),
-    Lesson("3", "Basic Sentences", "Grammar", 72, false),
-    Lesson("5", "Conversation", "Speaking", 0, true)
-)
 
 
 

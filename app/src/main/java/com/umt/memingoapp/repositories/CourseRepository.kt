@@ -5,6 +5,7 @@ import android.content.Context
 import com.umt.memingoapp.client.CourseRetrofitClient
 import com.umt.memingoapp.models.requests.UpdateLanguagePreferenceRequest
 import com.umt.memingoapp.models.requests.UpdateProgressRequest
+import com.umt.memingoapp.models.responses.CourseResponse
 import com.umt.memingoapp.models.responses.Language
 import com.umt.memingoapp.models.responses.UserLanguagesResponse
 
@@ -26,6 +27,10 @@ class CourseRepository(private val context: Context) {
         service.updateLanguagePreference(request)
 
     suspend fun getUserLanguages(): UserLanguagesResponse = service.getUserLanguages()
+
+    
+    // course detail by ID
+    suspend fun getCourseDetails( courseId: String) = service.getCourseDetails(courseId)
 }
 
 

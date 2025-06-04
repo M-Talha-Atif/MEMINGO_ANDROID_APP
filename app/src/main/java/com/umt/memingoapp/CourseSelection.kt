@@ -1,21 +1,15 @@
 package com.umt.memingoapp
 
 import android.app.Application
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -39,13 +33,13 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.SvgDecoder
 import com.umt.memingoapp.models.responses.CourseResponse
 import com.umt.memingoapp.models.responses.Language
+import com.umt.memingoapp.navigation.Screen
 import com.umt.memingoapp.ui.theme.LogoColor
 import com.umt.memingoapp.uiComponents.LoadingAnimation
 import com.umt.memingoapp.uiComponents.MemingoButton
 import com.umt.memingoapp.viewModelFactories.CourseViewModelFactory
 import com.umt.memingoapp.viewmodels.ResultType
 import com.umt.memingoapp.viewmodels.CourseViewModel
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 
@@ -172,7 +166,8 @@ private fun CourseList(
                 onClick = {
                     Toast.makeText(context, "To be Implemented Soon, Stay tuned buddy!!!", Toast.LENGTH_SHORT).show()
                     navController.navigate("alphabet_lesson")
-                }
+                },
+                navController = navController
             )
         }
 
@@ -186,7 +181,8 @@ private fun CourseList(
 @Composable
 private fun CourseCard(
     course: Language,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    navController: NavHostController
 ) {
     val context = LocalContext.current
 
@@ -280,7 +276,9 @@ private fun CourseCard(
             // Start button
             MemingoButton(
                 text = "Start Learning",
-                onClick = { /* Do Something */ },
+                onClick = {
+                    navController.navigate(("${Screen.Dashboard.route}/${course.id}"))
+                },
                 containerColor = Color.White,
                 textColor = LogoColor,
                 borderColors = listOf(LogoColor, Color.Cyan)

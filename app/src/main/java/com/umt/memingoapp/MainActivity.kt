@@ -58,48 +58,6 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@Composable
-fun MainScreen() {
-    // Sample data for a list of items
-    val items = listOf("Item 1", "Item 2", "Item 3", "Item 4", "Item 5")
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = "Welcome to Memingo!",
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Displaying a list of items
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            items(items) { item ->
-                Text(
-                    text = item,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .padding(8.dp)
-                )
-            }
-        }
-
-
-        Button(
-            onClick = { /* Add action here */ },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text(text = "Get Started")
-        }
-    }
-}
-
 
 
 @Composable

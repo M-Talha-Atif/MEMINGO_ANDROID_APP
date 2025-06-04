@@ -142,7 +142,7 @@ fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel
                                 Toast.makeText(context, "Enter a valid email address.", Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
-                            password.length <= 5 -> {
+                            password.length <= 2 -> {
                                 Toast.makeText(context, "Password must be longer than 5 characters.", Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
@@ -153,8 +153,7 @@ fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel
                             authViewModel.setLoading(false)
                             if (isSuccess) {
                                 authViewModel.saveCredentialsToPreferences(email, password)
-//                                navController.navigate(Screen.HomeScreen.route)
-                                navController.navigate("dashboard")
+                                navController.navigate(Screen.HomeScreen.route)
                             } else {
                                 val message = when {
                                     errorMessage != null -> {
