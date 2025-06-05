@@ -5,12 +5,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,39 +25,195 @@ import androidx.compose.ui.unit.dp
 import com.umt.memingoapp.R
 import com.umt.memingoapp.ui.theme.LogoColor
 import com.umt.memingoapp.uiComponents.AppTypography
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.umt.memingoapp.lessons.helpers.BackConfirmationDialog
+import com.umt.memingoapp.viewmodels.LessonQuestion
+import com.umt.memingoapp.viewmodels.LessonUiState
+import com.umt.memingoapp.viewmodels.LessonViewModel
+import com.umt.memingoapp.viewmodels.MAX_HEARTS
+import com.umt.memingoapp.viewmodels.QuestionResult
 
 
 @Preview(showBackground = true)
 @Composable
 fun LessonScreenPreview() {
-    val mockResults = listOf(
-        QuestionResult.Correct,
-        QuestionResult.Wrong,
-        QuestionResult.Unanswered,
-        QuestionResult.Correct
-    )
+}
+
+
+
+
+
+@Composable
+fun LessonScreenWithViewModel(
+    courseId: String,
+    lessonId: String,
+    onBack: () -> Unit,
+    onQuit: () -> Unit,
+    navHostController: NavHostController
+) {
+    val lessonViewModel: LessonViewModel = viewModel()
+    val uiState by lessonViewModel.uiState.collectAsState()
+    val currentIndex by lessonViewModel.currentQuestion.collectAsState()
+    val hearts by lessonViewModel.hearts.collectAsState()
+    val questionResults by lessonViewModel.questionResults.collectAsState()
+    val questions by lessonViewModel.flattenedQuestions.collectAsState()
+    var showExitDialog by remember { mutableStateOf(false) }
+
+//    val lessonId = "german-vocabulary-1"
+
+    LaunchedEffect(Unit) {
+        // Only load lesson if not loaded
+        if (uiState !is LessonUiState.Success) {
+            lessonViewModel.fetchLesson(lessonId)
+        }
+    }
+
+    val lessonTitle = (uiState as? LessonUiState.Success)?.lesson?.title ?: "Lesson"
+
+    if (showExitDialog) {
+        BackConfirmationDialog(
+            onDismissRequest = { showExitDialog = false },
+            onConfirmExit = {
+                showExitDialog = false
+                navHostController.popBackStack()
+            }
+        )
+    }
+
 
     LessonScreen(
-        lessonName = "Tiere erkennen",
-        currentQuestion = 2,
-        totalQuestions = 5,
-        percentCompleted = 40,
-        questionResults = mockResults,
-        onBack = {},
-        onPrev = {},
-        onNext = {},
+        lessonName = lessonTitle,
+        currentQuestion = (currentIndex + 1).coerceAtMost(questions.size),
+        totalQuestions = questions.size,
+        percentCompleted = (((currentIndex + 1).toFloat() / (questions.size.coerceAtLeast(1))) * 100).toInt(),
+        questionResults = questionResults,
+        hearts = hearts,
+        onBack = { showExitDialog = true },
         content = {
-            Text(
-                text = "Was ist das? (What is this?)",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                style = AppTypography.bodyLarge
-            )
+            when {
+                hearts <= 0 -> {
+
+                    var didSubmit by remember { mutableStateOf(false) }
+                    var submitSuccess by remember { mutableStateOf<Boolean?>(null) }
+
+                    LaunchedEffect(Unit) {
+                        if (!didSubmit) {
+                            didSubmit = true
+                            lessonViewModel.finishLesson(
+                                courseId = courseId,
+                                lessonId = lessonId,
+                                onResult = { success -> submitSuccess = success }
+                            )
+                        }
+                    }
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
+                        Text("You've run out of hearts!", color = Color.Red)
+                        if (submitSuccess == false) {
+                            Text("Failed to submit results.", color = Color.Red)
+                        }
+                        Button(
+                            onClick = { navHostController.popBackStack() },
+                            modifier = Modifier.padding(top = 16.dp)
+                        ) {
+                            Text("Quit Lesson")
+                        }
+                    }
+                }
+                currentIndex >= questions.size -> {
+                    // This block renders when lesson is complete
+                    var didSubmit by remember { mutableStateOf(false) }
+                    var submitSuccess by remember { mutableStateOf<Boolean?>(null) }
+
+                    LaunchedEffect(Unit) {
+                        if (!didSubmit) {
+                            didSubmit = true
+                            lessonViewModel.finishLesson(
+                                courseId = courseId,
+                                lessonId = lessonId,
+                                onResult = { success -> submitSuccess = success }
+                            )
+                        }
+                    }
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
+                        Text("Congratulations! Lesson Completed.", color = LogoColor)
+                        if (submitSuccess == false) {
+                            Text("Failed to submit results.", color = Color.Red)
+                        }
+                        Button(
+                            onClick = { navHostController.popBackStack() },
+                            modifier = Modifier.padding(top = 16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = LogoColor,
+                                contentColor = Color.White
+                            )
+                        ) {
+                            Text("Finish")
+                        }
+                    }
+                }
+                else -> {
+                    when (val q = questions[currentIndex]) {
+                        is LessonQuestion.ListenAndSelectQuestion ->
+                            ListenAndSelectContent(
+                                content = q.content,
+                                explanation = q.content.explanation,
+                                onCorrect = { lessonViewModel.onCorrect() },
+                                onWrong = { lessonViewModel.onWrong() }
+                            )
+                        is LessonQuestion.PronunciationQuestion ->
+                            PronunciationPracticeContent(
+                                word = q.word,
+                                onCorrect = { lessonViewModel.onCorrect() },
+                                onWrong = { lessonViewModel.onWrong() }
+                            )
+                        is LessonQuestion.SentenceBuilderQuestion ->
+                            SentenceBuilderContent(
+                                content = q.content,
+                                onCorrect = { lessonViewModel.onCorrect() },
+                                onWrong = { lessonViewModel.onWrong() }
+                            )
+                        is LessonQuestion.TypeTranslationQuestion ->
+                            TypeTranslationContent(
+                                content = q.content,
+                                onCorrect = { lessonViewModel.onCorrect() },
+                                onWrong = { lessonViewModel.onWrong() }
+                            )
+                        is LessonQuestion.DragAndDropQuestion ->
+                            DragAndDropSentenceContent(
+                                content = q.content,
+                                onCorrect = { lessonViewModel.onCorrect() },
+                                onWrong = { lessonViewModel.onWrong() }
+                            )
+
+                        is LessonQuestion.MatchPairsQuestion ->
+                            MatchPairsContent(
+                                content = q.content,
+                                onCorrect = { lessonViewModel.onCorrect() },
+                                onWrong = { lessonViewModel.onWrong() }
+                            )
+
+                        is LessonQuestion.MultipleChoiceQuestion ->
+                            MultipleChoiceContent(
+                                content = q.content,
+                                onCorrect = { lessonViewModel.onCorrect() },
+                                onWrong = { lessonViewModel.onWrong() }
+                            )
+
+                        is LessonQuestion.FillInBlankQuestion ->
+                            FillInBlankContent(
+                                content = q.content,
+                                onCorrect = { lessonViewModel.onCorrect() },
+                                onWrong = { lessonViewModel.onWrong() }
+                            )
+                    }
+                }
+            }
         }
     )
 }
-
 
 
 @Composable
@@ -65,9 +223,8 @@ fun LessonScreen(
     totalQuestions: Int,
     percentCompleted: Int,
     questionResults: List<QuestionResult>, // e.g. [Correct, Wrong, Unanswered]
+    hearts: Int,
     onBack: () -> Unit,
-    onPrev: () -> Unit,
-    onNext: () -> Unit,
     content: @Composable () -> Unit
 ) {
     Column(
@@ -96,21 +253,21 @@ fun LessonScreen(
                     style = AppTypography.titleLarge.copy(color = Color.White)
                 )
                 Text(
-                    text = "${currentQuestion} of $totalQuestions",
+                    text = "$currentQuestion of $totalQuestions",
                     style = AppTypography.bodyMedium.copy(color = Color.White.copy(alpha = 0.8f))
                 )
             }
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = Color.White.copy(alpha = 0.13f),
-                modifier = Modifier
-            ) {
-                Text(
-                    text = "$percentCompleted%",
-                    modifier = Modifier
-                        .padding(horizontal = 14.dp, vertical = 6.dp),
-                    style = AppTypography.bodyLarge.copy(color = Color.White, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-                )
+            // Hearts
+            Row {
+                repeat(MAX_HEARTS) { i ->
+                    val color = if (i < hearts) Color.Red else Color.Gray
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = null,
+                        tint = color,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         }
 
@@ -143,38 +300,18 @@ fun LessonScreen(
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-            content()
-        }
-
-        // Navigation Buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 18.dp, top = 6.dp, start = 18.dp, end = 18.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(
-                onClick = onPrev,
-                enabled = currentQuestion > 1,
-                shape = RoundedCornerShape(18.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = LogoColor)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp)
             ) {
-                Text("Prev", color = Color.White)
-            }
-            Button(
-                onClick = onNext,
-                enabled = currentQuestion < totalQuestions,
-                shape = RoundedCornerShape(18.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = LogoColor)
-            ) {
-                Text("Next", color = Color.White)
+                content()
             }
         }
     }
 }
 
-// Question result type for status bar
-enum class QuestionResult { Unanswered, Correct, Wrong }
 
 @Composable
 fun QuestionStatusCircle(result: QuestionResult) {
@@ -214,49 +351,3 @@ fun QuestionStatusCircle(result: QuestionResult) {
     }
 }
 
-
-//////////////////////////////////////////////////////////
-// Example of a question content composable for alphabet:
-//////////////////////////////////////////////////////////
-@Composable
-fun AlphabetQuestionContent(
-    alphabet: String,
-    onPlaySound: () -> Unit,
-    onRecordVoice: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = alphabet,
-            style = AppTypography.displayLarge,
-            color = LogoColor,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(36.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onPlaySound) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_play),
-                    contentDescription = "Play Sound",
-                    tint = LogoColor,
-                    modifier = Modifier.size(38.dp)
-                )
-            }
-            IconButton(onClick = onRecordVoice) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_sound),
-                    contentDescription = "Record Voice",
-                    tint = LogoColor,
-                    modifier = Modifier.size(38.dp)
-                )
-            }
-        }
-
-    }
-}

@@ -182,7 +182,7 @@ fun CourseHomeScreen(
                     lesson = lesson,
                     onItemClick = {
                         if (!lesson.locked) {
-                            navController.navigate("lesson_${lesson.id}")
+                            navController.navigate("${Screen.LessonScreen.route}/${courseId}/${lesson.id}")
                         }
                     }
                 )

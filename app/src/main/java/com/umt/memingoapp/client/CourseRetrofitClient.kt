@@ -1,5 +1,9 @@
 package com.umt.memingoapp.client
 import android.content.Context
+import com.google.gson.GsonBuilder
+import com.umt.memingoapp.models.responses.Activity
+import com.umt.memingoapp.models.responses.ActivityContent
+import com.umt.memingoapp.models.responses.ActivityDeserializer
 import com.umt.memingoapp.services.CourseService
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -40,10 +44,14 @@ object CourseRetrofitClient {
             .addInterceptor(loggingInterceptor)
             .addInterceptor(provideTokenInterceptor(context))
             .build()
-// Retrofit instance with the base URL, JSON converter, and custom OkHttpClient
+
+        val gson = GsonBuilder()
+            .registerTypeAdapter(Activity::class.java, ActivityDeserializer())
+            .create()
+
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client) // Attach the configured OkHttpClient
             .build()
             .create(CourseService::class.java)

@@ -5,30 +5,39 @@ import com.umt.memingoapp.models.responses.CourseResponse
 import com.umt.memingoapp.models.responses.LessonResponse
 import com.umt.memingoapp.models.responses.ApiResponse
 import com.umt.memingoapp.models.responses.SingleCourseResponse
+import com.umt.memingoapp.models.responses.UpdateLessonSubmitRequest
+import com.umt.memingoapp.models.responses.UpdateLessonSubmitResponse
 import com.umt.memingoapp.models.responses.UserLanguagesResponse
 import retrofit2.http.*
 
 interface CourseService {
 
-    @GET("/auth/courses")
+    @GET("/courses")
     suspend fun getAvailableCourses(): List<CourseResponse>
 
-    @POST("/auth/user/add_language")
+    @POST("/courses/user/add_language")
     suspend fun addLanguage(@Body body: Map<String, String>): ApiResponse
 
-    @GET("/auth/lesson/{course_id}")
-    suspend fun getLesson(@Path("course_id") courseId: String): LessonResponse
+    @GET("/lessons/{lesson_id}")
+    suspend fun getLesson(@Path("lesson_id") lessonId: String): LessonResponse
 
-    @POST("/auth/lesson/update_progress")
+    @POST("/lesson/update_progress")
     suspend fun updateLessonProgress(@Body request: UpdateProgressRequest): ApiResponse
 
     @POST("/auth/update-language-preference")
     suspend fun updateLanguagePreference(@Body request: UpdateLanguagePreferenceRequest): ApiResponse
 
-    @GET("/auth/user/languages")
+    @GET("/courses/user/languages")
     suspend fun getUserLanguages(): UserLanguagesResponse
 
 
-    @GET("/auth/course/{course_id}")
+    @GET("/courses/{course_id}")
     suspend fun getCourseDetails(@Path("course_id") courseId: String): SingleCourseResponse
+
+    @POST("/lessons/{lesson_id}/submit")
+    suspend fun submitLessonResults(
+        @Path("lesson_id") lessonId: String,
+        @Body request: UpdateLessonSubmitRequest
+    ): UpdateLessonSubmitResponse
+
 }

@@ -5,9 +5,12 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.umt.memingoapp.models.requests.UpdateLanguagePreferenceRequest
 import com.umt.memingoapp.models.requests.UpdateProgressRequest
+import com.umt.memingoapp.models.responses.Activity
+import com.umt.memingoapp.models.responses.ActivityContent
 import com.umt.memingoapp.models.responses.CourseResponse
 import com.umt.memingoapp.models.responses.Language
 import com.umt.memingoapp.models.responses.LessonResponse
+import com.umt.memingoapp.models.responses.PronunciationWord
 import com.umt.memingoapp.models.responses.SingleCourseResponse
 import com.umt.memingoapp.models.responses.UserLanguagesResponse
 import com.umt.memingoapp.repositories.CourseRepository
@@ -15,6 +18,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.Dispatchers
+
+
 
 class CourseViewModel(application: Application) : AndroidViewModel(application){
 
@@ -103,6 +108,9 @@ class CourseViewModel(application: Application) : AndroidViewModel(application){
     }.flowOn(Dispatchers.IO)
 
 
+
+
+
 }
 
 // ResultType sealed class
@@ -111,3 +119,4 @@ sealed class ResultType<out T> {
     data class Error(val message: String) : ResultType<Nothing>()
     object Loading : ResultType<Nothing>()
 }
+

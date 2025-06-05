@@ -80,14 +80,6 @@ data class Topic(
     val progress: Double
 )
 
-data class LessonResponse(
-    val lesson_id: String,
-    val course_id: String,
-    val title: String,
-    val description: String,
-    val content: String,
-    val questions: List<Question>?
-)
 
 data class Question(
     val id: String,

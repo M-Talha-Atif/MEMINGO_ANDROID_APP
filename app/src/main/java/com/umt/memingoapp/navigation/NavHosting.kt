@@ -10,7 +10,7 @@ import com.umt.memingoapp.GetStartedScreen
 import com.umt.memingoapp.LoginForm
 import com.umt.memingoapp.OtpScreen
 import com.umt.memingoapp.SignUpForm
-import com.umt.memingoapp.lessons.AlphabetLessonScreen
+import com.umt.memingoapp.lessons.LessonScreenWithViewModel
 
 @Composable
 fun MyNavHost(navController: NavHostController) {
@@ -43,8 +43,16 @@ fun MyNavHost(navController: NavHostController) {
         }
 
 
-        composable("alphabet_lesson") {
-            AlphabetLessonScreen(navController)
+        composable("${Screen.LessonScreen.route}/{course_id}/{lesson_id}") { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("course_id") ?: ""
+            val lessonId = backStackEntry.arguments?.getString("lesson_id") ?: ""
+            LessonScreenWithViewModel(
+                courseId,
+                lessonId,
+                onBack = {},
+                onQuit = {},
+                navHostController = navController
+            )
         }
     }
 }
