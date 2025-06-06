@@ -1,4 +1,4 @@
-package com.umt.memingoapp
+package com.umt.memingoapp.auth
 
 import android.app.Application
 import android.widget.Toast
@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.umt.memingoapp.R
+import com.umt.memingoapp.TopHeader
 import com.umt.memingoapp.viewmodels.AuthViewModel
 import com.umt.memingoapp.viewModelFactories.AuthViewModelFactory
 import com.umt.memingoapp.navigation.Screen

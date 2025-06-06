@@ -7,9 +7,9 @@ import androidx.navigation.compose.composable
 import com.umt.memingoapp.CourseHomeScreen
 import com.umt.memingoapp.CourseSelectionScreen
 import com.umt.memingoapp.GetStartedScreen
-import com.umt.memingoapp.LoginForm
-import com.umt.memingoapp.OtpScreen
-import com.umt.memingoapp.SignUpForm
+import com.umt.memingoapp.auth.LoginForm
+import com.umt.memingoapp.auth.OtpScreen
+import com.umt.memingoapp.auth.SignUpForm
 import com.umt.memingoapp.lessons.LessonScreenWithViewModel
 
 @Composable

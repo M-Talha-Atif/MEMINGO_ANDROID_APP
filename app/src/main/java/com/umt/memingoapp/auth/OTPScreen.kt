@@ -1,8 +1,6 @@
-package com.umt.memingoapp
+package com.umt.memingoapp.auth
 
 import android.app.Application
-import android.media.tv.TvContract.Channels.Logo
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

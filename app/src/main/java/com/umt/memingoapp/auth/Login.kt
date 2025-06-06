@@ -1,4 +1,4 @@
-package com.umt.memingoapp
+package com.umt.memingoapp.auth
 
 import android.app.Application
 import android.widget.Toast
@@ -50,10 +50,10 @@ import com.umt.memingoapp.uiComponents.LoadingAnimation
 import com.umt.memingoapp.uiComponents.PasswordField
 import com.umt.memingoapp.uiComponents.SimpleField
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.slideInVertically
 import androidx.compose.runtime.*
-
+import com.umt.memingoapp.R
+import com.umt.memingoapp.TopHeader
 
 
 @Preview
