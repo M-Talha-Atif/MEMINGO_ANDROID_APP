@@ -93,7 +93,7 @@ fun CourseHomeScreen(
     val lessons = lessonsState
 
     // Calculate completed/total lessons
-    val totalLessons = course?.totalLessons ?: lessons.size
+    val totalLessons = lessons.size
     val completedLessons = lessons.count { !it.locked && it.score >= 100 }
 
     Scaffold(
@@ -101,6 +101,7 @@ fun CourseHomeScreen(
             BottomNavigationBar(navController,courseId)
         }
     ) { padding ->
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
