@@ -33,6 +33,7 @@ import com.umt.memingoapp.viewmodels.LessonUiState
 import com.umt.memingoapp.viewmodels.LessonViewModel
 import com.umt.memingoapp.viewmodels.MAX_HEARTS
 import com.umt.memingoapp.viewmodels.QuestionResult
+import java.util.Locale
 
 
 @Preview(showBackground = true)
@@ -60,7 +61,53 @@ fun LessonScreenWithViewModel(
     val questions by lessonViewModel.flattenedQuestions.collectAsState()
     var showExitDialog by remember { mutableStateOf(false) }
 
+    fun extractLanguage(courseId: String): String {
+        return courseId.substringBefore("-")
+    }
+
 //    val lessonId = "german-vocabulary-1"
+
+    fun getCourseLocale(courseId: String): Locale {
+        val language = courseId.substringBefore("-").lowercase()
+        return when (language) {
+            "german" -> Locale.GERMAN
+            "spanish" -> Locale("es")  // Spanish (es)
+            "italian" -> Locale.ITALIAN
+            "french" -> Locale.FRENCH
+            "japanese" -> Locale.JAPANESE
+            "russian" -> Locale("ru")   // Russian (ru)
+            "korean" -> Locale.KOREAN
+            "chinese" -> Locale.CHINESE
+            "portuguese" -> Locale("pt") // Portuguese (pt)
+            // Add more languages as needed
+            else -> Locale.ENGLISH // Default fallback
+        }
+    }
+
+    fun getCourseLanguageTag(courseId: String): String {
+        val language = courseId.substringBefore("-").lowercase()
+        return when (language) {
+            "german" -> "de-DE"
+            "spanish" -> "es-ES"
+            "italian" -> "it-IT"
+            "french" -> "fr-FR"
+            "japanese" -> "ja-JP"
+            "russian" -> "ru-RU"
+            "korean" -> "ko-KR"
+            "chinese" -> "zh-CN"
+            "portuguese" -> "pt-PT"
+            "english" -> "en-US"
+            // Add more as needed
+            else -> "en-US" // Default fallback
+        }
+    }
+
+
+    val courseLocale = getCourseLocale(courseId)
+
+    val courseTag = getCourseLanguageTag(courseId)
+
+
 
     LaunchedEffect(Unit) {
         // Only load lesson if not loaded
@@ -159,14 +206,18 @@ fun LessonScreenWithViewModel(
                         is LessonQuestion.ListenAndSelectQuestion ->
                             ListenAndSelectContent(
                                 content = q.content,
-                                explanation = q.content.explanation,
+                                language = courseLocale,
+                                        explanation = q.content.explanation,
                                 onCorrect = { lessonViewModel.onCorrect() },
+                                courseTag = courseTag,
                                 onWrong = { lessonViewModel.onWrong() }
                             )
                         is LessonQuestion.PronunciationQuestion ->
                             PronunciationPracticeContent(
                                 word = q.word,
+                                language = courseLocale,
                                 onCorrect = { lessonViewModel.onCorrect() },
+                                courseTag = courseTag,
                                 onWrong = { lessonViewModel.onWrong() }
                             )
                         is LessonQuestion.SentenceBuilderQuestion ->

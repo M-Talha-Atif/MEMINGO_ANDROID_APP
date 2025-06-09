@@ -34,13 +34,15 @@ import java.util.*
 @Composable
 fun PronunciationPracticeContent(
     word: PronunciationWord,
+    language: Locale,
+    courseTag : String,
     onCorrect: () -> Unit,
     onWrong: () -> Unit
 ) {
     val context = LocalContext.current
     val tts = remember { TextToSpeech(context, null) }
     DisposableEffect(Unit) {
-        tts.language = Locale.GERMAN
+        tts.language = language
         onDispose { tts.shutdown() }
     }
 
@@ -88,7 +90,7 @@ fun PronunciationPracticeContent(
         ) {
             IconButton(
                 onClick = {
-                    tts.language = Locale.GERMAN
+                    tts.language = language
                     tts.speak(word.word, TextToSpeech.QUEUE_FLUSH, null, null)
                 },
                 modifier = Modifier
@@ -110,7 +112,7 @@ fun PronunciationPracticeContent(
             onClick = {
                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                     putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, "de-DE")
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, courseTag)
                 }
                 launcher.launch(intent)
             },

@@ -59,6 +59,8 @@ import java.util.Locale
 @Composable
 fun ListenAndSelectContent(
     content: ActivityContent.ListenAndSelect,
+    language: Locale,
+    courseTag: String,
     explanation: String,
     onCorrect: () -> Unit,
     onWrong: () -> Unit = {}
@@ -66,7 +68,7 @@ fun ListenAndSelectContent(
     val context = LocalContext.current
     val tts = remember { TextToSpeech(context, null) }
     DisposableEffect(Unit) {
-        tts.language = Locale.GERMAN
+        tts.language = language
         onDispose { tts.shutdown() }
     }
 
@@ -105,7 +107,7 @@ fun ListenAndSelectContent(
         ) {
             IconButton(
                 onClick = {
-                    tts.language = Locale.GERMAN
+                    tts.language = language
                     tts.speak(content.correct_answer, TextToSpeech.QUEUE_FLUSH, null, null)
                 },
                 modifier = Modifier

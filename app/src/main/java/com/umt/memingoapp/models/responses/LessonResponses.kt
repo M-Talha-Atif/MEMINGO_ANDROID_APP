@@ -88,7 +88,9 @@ sealed class ActivityContent {
 
 data class PairData(
     val english: String,
-    val german: String
+    val german: String? = null,
+    val spanish: String? = null,
+    val italian: String? = null
 )
 
 data class PronunciationWord(

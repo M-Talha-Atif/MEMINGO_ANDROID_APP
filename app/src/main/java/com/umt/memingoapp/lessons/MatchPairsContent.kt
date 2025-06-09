@@ -51,7 +51,10 @@ fun MatchPairsContent(
 ) {
     val pairs = content.pairs
     val englishWords = remember(pairs) { pairs.map { it.english } }
-    val germanWordsInit = remember(pairs) { pairs.map { it.german }.shuffled() }
+    val germanWordsInit = remember(pairs) { pairs.map {
+        it.german ?: it.spanish ?: it.italian ?: ""
+
+    }.shuffled() }
 
     var germanWords by remember { mutableStateOf(germanWordsInit) }
     var selectedEnglishIdx by remember { mutableStateOf<Int?>(null) }
@@ -151,7 +154,14 @@ fun MatchPairsContent(
                                 // Check for a match
                                 if (selectedEnglishIdx != null) {
                                     val eng = englishWords[selectedEnglishIdx!!]
-                                    val correct = pairs.any { it.english == eng && it.german == germanWords[gerIdx] }
+                                    val correct = pairs.any {
+                                        it.english == eng && (
+                                                (it.german != null && it.german == germanWords[gerIdx])
+                                                        || (it.spanish != null && it.spanish == germanWords[gerIdx])
+                                                        || (it.italian != null && it.italian == germanWords[gerIdx])
+                                                )
+                                    }
+//                                    val correct = pairs.any { it.english == eng && it.target_word == germanWords[gerIdx] }
                                     if (correct) {
                                         matchedPairs = matchedPairs + (selectedEnglishIdx!! to gerIdx)
                                     }
@@ -196,9 +206,17 @@ fun MatchPairsContent(
             Button(
                 onClick = {
                     val correct = matchedPairs.size == pairs.size &&
-                            matchedPairs.all { (engIdx, gerIdx) ->
-                                pairs[engIdx].german == germanWords[gerIdx]
+                            matchedPairs.all { (engIdx, tarIdx) ->
+                                val pair = pairs[engIdx]
+                                val target = germanWords[tarIdx]
+                                (pair.german == target) || (pair.spanish == target) || (pair.italian == target)
                             }
+
+//                    val correct = matchedPairs.size == pairs.size &&
+//                            matchedPairs.all { (engIdx, gerIdx) ->
+//                                pairs[engIdx].german == germanWords[gerIdx]
+//                            }
+
                     feedbackState = correct to true
                 },
                 enabled = matchedPairs.size == pairs.size && isCorrect == null,
