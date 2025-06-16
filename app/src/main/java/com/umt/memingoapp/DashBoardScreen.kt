@@ -217,8 +217,7 @@ private fun HeaderSection() {
 }
 
 @Composable
-private fun LanguageProgressCard(
-    language: String = "German",
+private fun LanguageProgressCard(language: String = "German",
     level: String = "Intermediate",
     progress: Float = 0.65f,
     topics: List<Topic> = listOf(

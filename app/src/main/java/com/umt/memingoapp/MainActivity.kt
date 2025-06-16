@@ -33,10 +33,10 @@ import com.umt.memingoapp.navigation.MyNavHost
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.*
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 
 
-
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

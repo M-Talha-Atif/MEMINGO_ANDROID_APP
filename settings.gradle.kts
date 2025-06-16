@@ -10,6 +10,12 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+    plugins {
+        id("com.google.dagger.hilt.android") version "2.48" apply false // Updated to latest stable
+        kotlin("kapt") version "1.9.0" apply false
+    }
+
+
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
