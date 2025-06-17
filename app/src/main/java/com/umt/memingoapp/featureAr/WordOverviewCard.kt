@@ -48,13 +48,7 @@ fun PreviewWordLearningCard() {
         sentencesCount = 3,
         tipsCount = 2,
         factsCount = 1,
-        relatedCount = 4,
-        modifier = Modifier
-            .padding(14.dp)
-            .fillMaxWidth()
-            .shadow(10.dp, RoundedCornerShape(24.dp))
-            .background(LogoColor, shape = RoundedCornerShape(24.dp))
-            .animateContentSize()
+        relatedCount = 4
     )
 }
 
@@ -83,24 +77,13 @@ fun WordLearningCard(
         modifier = modifier
             .padding(14.dp)
             .fillMaxWidth()
-            .shadow(10.dp, RoundedCornerShape(24.dp))
-            .background(LogoColor, shape = RoundedCornerShape(24.dp))
+            .shadow(2.dp, RoundedCornerShape(24.dp))
+            .background(Color.White, shape = RoundedCornerShape(24.dp))
             .animateContentSize(),
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFFD4E6FB),
-                            Color(0xFFF9F9FB),
-                        )
-                    )
-                )
-                .padding(2.dp)
-        ) {
+
 
 
             Column(
@@ -222,7 +205,7 @@ fun WordLearningCard(
                     relatedCount = relatedCount
                 )
             }
-        }
+
     }
 
 }
