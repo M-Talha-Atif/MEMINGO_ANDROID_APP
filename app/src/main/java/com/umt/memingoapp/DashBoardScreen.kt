@@ -41,6 +41,7 @@ import com.umt.memingoapp.uiComponents.AppTypography
 import com.umt.memingoapp.viewmodels.CourseViewModel
 import com.umt.memingoapp.viewmodels.ResultType
 import kotlinx.coroutines.flow.collectLatest
+import java.util.Locale
 
 @Preview(showBackground = true)
 @Composable
@@ -61,8 +62,6 @@ fun CourseHomeScreen(
     val lessonsState = remember { mutableStateListOf<Lesson>() }
     val scope = rememberCoroutineScope()
 
-    // Replace with your selected course id logic
-    val courseId = courseId
 
     // Fetch course details once (replace "courseId" with actual id)
     LaunchedEffect(Unit) {
@@ -90,6 +89,7 @@ fun CourseHomeScreen(
     }
 
     val course = courseState.value
+    val courseName = courseId.substringBefore("-").lowercase()
     val lessons = lessonsState
 
     // Calculate completed/total lessons
@@ -154,7 +154,8 @@ fun CourseHomeScreen(
                         title = "AR Scan",
                         description = "Real-world practice",
                         iconRes = R.drawable.plane,
-                        onClick = { navController.navigate("ar_scan") }
+
+                        onClick = { navController.navigate("${Screen.ARScreen.route}/${courseName}/${courseId}") }
                     )
                 }
             }
@@ -511,6 +512,41 @@ private fun RowScope.BottomNavItem(
         },
         alwaysShowLabel = true
     )
+}
+
+fun getCourseLocale(courseId: String): Locale {
+    val language = courseId.substringBefore("-").lowercase()
+    return when (language) {
+        "german" -> Locale.GERMAN
+        "spanish" -> Locale("es")  // Spanish (es)
+        "italian" -> Locale.ITALIAN
+        "french" -> Locale.FRENCH
+        "japanese" -> Locale.JAPANESE
+        "russian" -> Locale("ru")   // Russian (ru)
+        "korean" -> Locale.KOREAN
+        "chinese" -> Locale.CHINESE
+        "portuguese" -> Locale("pt") // Portuguese (pt)
+        // Add more languages as needed
+        else -> Locale.ENGLISH // Default fallback
+    }
+}
+
+fun getCourseLanguageTag(courseId: String): String {
+    val language = courseId.substringBefore("-").lowercase()
+    return when (language) {
+        "german" -> "de-DE"
+        "spanish" -> "es-ES"
+        "italian" -> "it-IT"
+        "french" -> "fr-FR"
+        "japanese" -> "ja-JP"
+        "russian" -> "ru-RU"
+        "korean" -> "ko-KR"
+        "chinese" -> "zh-CN"
+        "portuguese" -> "pt-PT"
+        "english" -> "en-US"
+        // Add more as needed
+        else -> "en-US" // Default fallback
+    }
 }
 
 

@@ -152,7 +152,6 @@ fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel
                         authViewModel.login { isSuccess, errorMessage ->
                             authViewModel.setLoading(false)
                             if (isSuccess) {
-                                authViewModel.saveCredentialsToPreferences(email, password)
                                 navController.navigate(Screen.HomeScreen.route)
                             } else {
                                 val message = when {

@@ -1,4 +1,4 @@
-package com.umt.memingoapp.featureAr
+package com.umt.memingoapp.featureAr.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.umt.memingoapp.ui.theme.LogoColor
 
 @Composable
 fun CompleteLearningPackageCard(
@@ -45,8 +44,9 @@ fun CompleteLearningPackageCard(
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFFD4E6FB),
-                            Color(0xFFF9F9FB),
+                            Color(0xFF256470),  // Logo color
+                            Color(0xFF5A9BA6),  // Intermediate lighter teal
+                            Color(0xFFF9F9FB),  // Light gray/white
                         )
                     )
                 )
@@ -61,7 +61,7 @@ fun CompleteLearningPackageCard(
                     Icon(
                         Icons.Outlined.MenuBook,
                         contentDescription = null,
-                        tint = Color(0xFF2666CF),
+                        tint = Color.Yellow,
                         modifier = Modifier
                             .size(28.dp)
                             .padding(end = 8.dp)
@@ -70,7 +70,7 @@ fun CompleteLearningPackageCard(
                         "Complete Learning Package",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontSize = 19.sp,
-                            color = Color(0xFF1A2B49)
+                            color = Color(0xFFDCDCDE)
                         )
                     )
                 }

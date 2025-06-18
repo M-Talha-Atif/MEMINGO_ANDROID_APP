@@ -21,7 +21,7 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
 
     private val sharedPreferences = context.getSharedPreferences("AuthPrefs", Context.MODE_PRIVATE)
 
-    private val _email = MutableStateFlow(getPersistedEmail())
+    private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
 
     private val _password = MutableStateFlow("")
@@ -61,9 +61,7 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
     }
 
 
-    private fun getPersistedEmail(): String {
-        return sharedPreferences.getString("email", "") ?: ""
-    }
+
 
     fun onEmailChanged(newEmail: String) {
         _email.value = newEmail
@@ -95,6 +93,7 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
                 val response = AuthenticationRetrofitClient.instance.login(loginRequest)
                 // Save token to SharedPreferences
                 sharedPreferences.edit().putString("token", response.access_token).apply()
+                sharedPreferences.edit().putBoolean("is_first_time", false).apply()
 
                 onResult(true, null) // Login successful
             } catch (e: Exception) {
@@ -103,14 +102,7 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun saveEmailToPreferences(email: String) {
-        sharedPreferences.edit().putString("email", email).apply()
-    }
 
-    fun saveCredentialsToPreferences(email: String, password: String) {
-        sharedPreferences.edit().putString("email", email).apply()
-        sharedPreferences.edit().putString("password", password).apply()
-    }
 
     fun signup(onResult: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
@@ -123,10 +115,9 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
                     learning_goal = goalDropDownText.value
                 )
                 val response = AuthenticationRetrofitClient.instance.signup(signupRequest)
-                // store the email to use it in otp
-//                saveEmailToPreferences(email.value)
 
                 onResult(true, response.message)
+                sharedPreferences.edit().putBoolean("is_first_time", false).apply()
             } catch (e: Exception) {
                 onResult(false, e.localizedMessage ?: "Signup failed")
             }

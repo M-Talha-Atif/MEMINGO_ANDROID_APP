@@ -1,15 +1,17 @@
-package com.mlr_apps.objectdetection.ui.views
+package com.umt.memingoapp.featureObjectDetection.views
 
 import android.content.Context
 import android.graphics.Paint
 import android.util.Log
 import android.util.Size
+import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -25,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -38,39 +41,50 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.NavController
 import com.google.accompanist.permissions.*
+import com.mlr_apps.objectdetection.ui.views.DetectionViewModel
 import com.umt.memingoapp.featureObjectDetection.ObjectDetector
 import com.umt.memingoapp.R
-import com.umt.memingoapp.featureObjectDetection.YuvToRgbConverter
+import com.umt.memingoapp.navigation.Screen
 import com.umt.memingoapp.ui.theme.MemingoAppTheme
-import org.tensorflow.lite.Interpreter
-import java.util.concurrent.ExecutorService
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun DetectionScreen(
-    cameraExecutor: ExecutorService,
-    yuvToRgbConverter: YuvToRgbConverter,
-    interpreter: Interpreter,
-    labels: List<String>
+    navController: NavController,
+    courseId: String,
+    courseName: String,
+    viewModel: DetectionViewModel = hiltViewModel()
 ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        )
-        {
-            val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
 
-            Column {
-                TopBar()
-                if (cameraPermissionState.status.isGranted){
-                    OpenCamera(cameraExecutor, yuvToRgbConverter, interpreter, labels)
-                }else{
-                    Permission(cameraPermissionState)
-                }
+    // Cleanup when leaving screen
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.cleanup()
+        }
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column {
+            TopBar()
+            if (cameraPermissionState.status.isGranted) {
+                OpenCamera(
+                    navController = navController,
+                    courseId = courseId,
+                    courseName = courseName
+                )
+            } else {
+                Permission(cameraPermissionState)
             }
         }
-
+    }
 }
 
 //----------------------------- TOP BAR --------------------------------------
@@ -96,10 +110,10 @@ fun TopBar() {
 
 @Composable
 fun OpenCamera(
-    cameraExecutor: ExecutorService,
-    yuvToRgbConverter: YuvToRgbConverter,
-    interpreter: Interpreter,
-    labels: List<String>
+    navController: NavController,
+    courseId: String,
+    courseName: String,
+    viewModel: DetectionViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -108,10 +122,9 @@ fun OpenCamera(
         CameraPreview(
             context = context,
             lifecycleOwner = lifecycleOwner,
-            cameraExecutor = cameraExecutor,
-            yuvToRgbConverter = yuvToRgbConverter,
-            interpreter = interpreter,
-            labels = labels
+            navController = navController,
+            courseId = courseId,
+            courseName = courseName
         )
     }
 }
@@ -119,21 +132,21 @@ fun OpenCamera(
 @Composable
 fun CameraPreview(
     context: Context,
+    navController: NavController,
     lifecycleOwner: LifecycleOwner,
-    cameraExecutor: ExecutorService,
-    yuvToRgbConverter: YuvToRgbConverter,
-    interpreter: Interpreter,
-    labels: List<String>,
+    courseId: String,
+    courseName: String,
     viewModel: DetectionViewModel = hiltViewModel()
-) {
-    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-    var imageCapture: ImageCapture? by remember { mutableStateOf(null) }
-    var preview by remember { mutableStateOf<androidx.camera.core.Preview?>(null) }
-    val executor = ContextCompat.getMainExecutor(context)
-    val cameraProvider = cameraProviderFuture.get()
+)
+    {
+        val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+        var imageCapture: ImageCapture? by remember { mutableStateOf(null) }
+        var preview by remember { mutableStateOf<androidx.camera.core.Preview?>(null) }
+        val executor = ContextCompat.getMainExecutor(context)
+        val cameraProvider = cameraProviderFuture.get()
 
-    val drawCanvas by remember { viewModel.isLoading }
-    val detectionListObject by remember { viewModel.detectionList }
+        val drawCanvas by remember { viewModel.isLoading }
+        val detectionListObject by remember { viewModel.detectionList }
 
     val paint = Paint()
     val pathColorList = listOf(Color.Red, Color.Green, Color.Cyan, Color.Blue)
@@ -143,6 +156,7 @@ fun CameraPreview(
         android.graphics.Color.CYAN,
         android.graphics.Color.BLUE
     )
+
 
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
@@ -163,13 +177,12 @@ fun CameraPreview(
                         .build()
                         .also {
                             it.setAnalyzer(
-                                cameraExecutor,
+                                viewModel.cameraExecutor,
                                 ObjectDetector(
-                                    yuvToRgbConverter = yuvToRgbConverter,
-                                    interpreter = interpreter,
-                                    labels = labels,
-                                    resultViewSize = Size(sizeWith.toInt(), sizeHeight.toInt()
-                                    )
+                                    yuvToRgbConverter = viewModel.yuvToRgbConverter,
+                                    interpreter = viewModel.interpreter,
+                                    labels = viewModel.labels,
+                                    resultViewSize = Size(sizeWith.toInt(), sizeHeight.toInt())
                                 ) { detectedObjectList ->
                                     viewModel.setList(detectedObjectList)
                                 }
@@ -200,7 +213,30 @@ fun CameraPreview(
 
         if (drawCanvas){
             Canvas(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(detectionListObject) {
+                        detectTapGestures { offset ->
+                            detectionListObject.forEach { detectedObject ->
+                                val box = detectedObject.boundingBox
+                                if (offset.x >= box.left && offset.x <= box.right &&
+                                    offset.y >= box.top && offset.y <= box.bottom) {
+                                    Toast.makeText(
+                                        context,
+                                        "Clicked on: ${detectedObject.label}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    // Navigate to vocabulary screen with the detected word
+                                    navController.navigate(
+                                        "${Screen.VocabularyScreen.route}/$courseId/$courseName/${detectedObject.label}"
+                                    )
+                                }
+
+                            }
+                        }
+                    },
+
                 onDraw = {
 
                     detectionListObject.mapIndexed { i, detectionObject ->

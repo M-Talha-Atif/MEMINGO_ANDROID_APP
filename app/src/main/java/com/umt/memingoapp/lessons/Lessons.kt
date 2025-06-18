@@ -41,6 +41,43 @@ import java.util.Locale
 fun LessonScreenPreview() {
 }
 
+fun getCourseLocale(courseId: String): Locale {
+    val language = courseId.substringBefore("-").lowercase()
+    return when (language) {
+        "german" -> Locale.GERMAN
+        "spanish" -> Locale("es")  // Spanish (es)
+        "italian" -> Locale.ITALIAN
+        "french" -> Locale.FRENCH
+        "japanese" -> Locale.JAPANESE
+        "russian" -> Locale("ru")   // Russian (ru)
+        "korean" -> Locale.KOREAN
+        "chinese" -> Locale.CHINESE
+        "portuguese" -> Locale("pt") // Portuguese (pt)
+        // Add more languages as needed
+        else -> Locale.ENGLISH // Default fallback
+    }
+}
+
+fun getCourseLanguageTag(courseId: String): String {
+    val language = courseId.substringBefore("-").lowercase()
+    return when (language) {
+        "german" -> "de-DE"
+        "spanish" -> "es-ES"
+        "italian" -> "it-IT"
+        "french" -> "fr-FR"
+        "japanese" -> "ja-JP"
+        "russian" -> "ru-RU"
+        "korean" -> "ko-KR"
+        "chinese" -> "zh-CN"
+        "portuguese" -> "pt-PT"
+        "english" -> "en-US"
+        // Add more as needed
+        else -> "en-US" // Default fallback
+    }
+}
+
+
+
 
 
 
@@ -65,47 +102,11 @@ fun LessonScreenWithViewModel(
         return courseId.substringBefore("-")
     }
 
-//    val lessonId = "german-vocabulary-1"
-
-    fun getCourseLocale(courseId: String): Locale {
-        val language = courseId.substringBefore("-").lowercase()
-        return when (language) {
-            "german" -> Locale.GERMAN
-            "spanish" -> Locale("es")  // Spanish (es)
-            "italian" -> Locale.ITALIAN
-            "french" -> Locale.FRENCH
-            "japanese" -> Locale.JAPANESE
-            "russian" -> Locale("ru")   // Russian (ru)
-            "korean" -> Locale.KOREAN
-            "chinese" -> Locale.CHINESE
-            "portuguese" -> Locale("pt") // Portuguese (pt)
-            // Add more languages as needed
-            else -> Locale.ENGLISH // Default fallback
-        }
-    }
-
-    fun getCourseLanguageTag(courseId: String): String {
-        val language = courseId.substringBefore("-").lowercase()
-        return when (language) {
-            "german" -> "de-DE"
-            "spanish" -> "es-ES"
-            "italian" -> "it-IT"
-            "french" -> "fr-FR"
-            "japanese" -> "ja-JP"
-            "russian" -> "ru-RU"
-            "korean" -> "ko-KR"
-            "chinese" -> "zh-CN"
-            "portuguese" -> "pt-PT"
-            "english" -> "en-US"
-            // Add more as needed
-            else -> "en-US" // Default fallback
-        }
-    }
-
-
     val courseLocale = getCourseLocale(courseId)
 
     val courseTag = getCourseLanguageTag(courseId)
+
+//    val lessonId = "german-vocabulary-1"
 
 
 

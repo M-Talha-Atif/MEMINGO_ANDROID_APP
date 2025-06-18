@@ -1,19 +1,27 @@
-package com.umt.memingoapp.featureAr
+package com.umt.memingoapp.featureAr.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,22 +29,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import com.umt.memingoapp.featureAr.models.ExampleSentence
 import com.umt.memingoapp.ui.theme.LogoColor
 
-data class ExampleSentence(
-    val number: Int,
-    val foreignLang: String,
-    val foreignFlag: String,
-    val foreignText: String,
-    val englishFlag: String,
-    val englishText: String,
-    val ipa: String,
-    val onSoundClick: () -> Unit = {}
-)
+
 
 @Composable
 fun ExampleSentencesList(
@@ -47,7 +46,7 @@ fun ExampleSentencesList(
         // Title
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 12.dp, top = 2.dp, start = 2.dp)
+            modifier = Modifier.padding(bottom = 12.dp, top = 2.dp, start=16.dp)
         ) {
             Icon(
                 Icons.Filled.ChatBubbleOutline,
@@ -62,21 +61,45 @@ fun ExampleSentencesList(
                     fontSize = 20.sp,
                     color = LogoColor,
                     fontWeight = FontWeight.SemiBold
-                )
+                ),
             )
         }
-        sentences.forEachIndexed { idx, s ->
-            ExampleSentenceCard(sentence = s)
-            if (idx < sentences.lastIndex)
-                Spacer(Modifier.height(14.dp))
+
+        // Use LazyColumn for scrollability and animation
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(vertical = 8.dp)
+        ) {
+            itemsIndexed(sentences) { idx, s ->
+                var visible by remember { mutableStateOf(false) }
+                LaunchedEffect(Unit) { visible = true }
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn()
+                ) {
+                    ExampleSentenceCard(
+                        sentence = s,
+                        // marginStart/marginEnd in XML = padding(horizontal) in Compose
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 16.dp, // <-- horizontal margin for each card
+                                vertical = 4.dp
+                            )
+                    )
+                }
+                if (idx < sentences.lastIndex) {
+                    Spacer(Modifier.height(10.dp))
+                }
+            }
         }
     }
 }
 
 @Composable
-fun ExampleSentenceCard(sentence: ExampleSentence) {
+fun ExampleSentenceCard(sentence: ExampleSentence, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .shadow(3.dp, RoundedCornerShape(22.dp)),
         shape = RoundedCornerShape(22.dp)

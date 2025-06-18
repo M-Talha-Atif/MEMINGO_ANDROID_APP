@@ -1,11 +1,11 @@
-package com.umt.memingoapp.featureAr
+package com.umt.memingoapp.featureAr.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -15,65 +15,88 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
-import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.featureAr.models.FactItem
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.*
 
 
-data class UsageTip(
-    val tipNumber: Int,
-    val foreignLang: String,
-    val foreignFlag: String,
-    val foreignText: String,
-    val englishFlag: String,
-    val englishText: String
-)
+val FactColor = Color(0xFF21C17A)
+
 
 @Composable
-fun UsageTipsList(
+fun FactList(
     modifier: Modifier = Modifier,
-    tips: List<UsageTip>
+    facts: List<FactItem>
 ) {
     Column(modifier) {
-        // Title
+        // Section Title Row (like Example Sentences)
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 12.dp, top = 2.dp, start = 2.dp)
+            modifier = Modifier.padding(bottom = 12.dp, top = 2.dp, start=16.dp)
         ) {
             Icon(
-                Icons.Filled.Lightbulb,
+                Icons.Filled.Star,
                 contentDescription = null,
-                tint = LogoColor,
+                tint = FactColor,
                 modifier = Modifier.size(22.dp)
             )
             Spacer(Modifier.width(8.dp))
             Text(
-                "Usage Tips",
+                "Facts",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontSize = 20.sp,
-                    color = Color(0xFF232323),
+                    color = FactColor,
                     fontWeight = FontWeight.SemiBold
-                )
+                ),
+
             )
         }
-        tips.forEachIndexed { idx, tip ->
-            UsageTipCard(tip = tip)
-            if (idx < tips.lastIndex)
-                Spacer(Modifier.height(14.dp))
+        // Scrollable, animated, horizontally padded list
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(vertical = 8.dp)
+        ) {
+            itemsIndexed(facts) { idx, fact ->
+                var visible by remember { mutableStateOf(false) }
+                LaunchedEffect(Unit) { visible = true }
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn()
+                ) {
+                    FactCard(
+                        fact = fact,
+                        // marginStart/marginEnd in XML = padding(horizontal) in Compose
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 16.dp, // <-- horizontal margin for each card
+                                vertical = 4.dp
+                            )
+                    )
+                }
+                if (idx < facts.lastIndex) {
+                    Spacer(Modifier.height(10.dp))
+                }
+            }
         }
     }
 }
-
 @Composable
-fun UsageTipCard(tip: UsageTip) {
+fun FactCard(
+    fact: FactItem,
+    modifier: Modifier = Modifier
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(20.dp)),
+        modifier = modifier
+            .fillMaxWidth(),
         shape = RoundedCornerShape(20.dp)
     ) {
         Box(
@@ -84,32 +107,38 @@ fun UsageTipCard(tip: UsageTip) {
             Column(
                 Modifier.padding(start = 12.dp)
             ) {
-                // Tip number and icon
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Filled.Lightbulb,
-                        contentDescription = null,
-                        tint = LogoColor,
-                        modifier = Modifier.size(21.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .background(FactColor.copy(alpha = 0.13f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = FactColor,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     Spacer(Modifier.width(7.dp))
                     Text(
-                        "Tip ${tip.tipNumber}",
-                        color = LogoColor,
+                        "Fact ${fact.factNumber}",
+                        color = FactColor,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
                 }
-                Spacer(Modifier.height(10.dp))
-                // Foreign lang
+                Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        tip.foreignFlag,
+                        fact.foreignFlag,
                         fontSize = 17.sp,
                         modifier = Modifier.padding(end = 4.dp)
                     )
                     Text(
-                        tip.foreignLang.uppercase(),
+                        fact.foreignLang.uppercase(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
                         color = Color(0xFF646363),
@@ -117,7 +146,7 @@ fun UsageTipCard(tip: UsageTip) {
                     )
                 }
                 Text(
-                    tip.foreignText,
+                    fact.foreignText,
                     style = MaterialTheme.typography.titleMedium.copy(
                         color = Color(0xFF232323),
                         fontWeight = FontWeight.SemiBold,
@@ -125,10 +154,9 @@ fun UsageTipCard(tip: UsageTip) {
                     ),
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                // English lang
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        tip.englishFlag,
+                        fact.englishFlag,
                         fontSize = 17.sp,
                         modifier = Modifier.padding(end = 4.dp)
                     )
@@ -141,7 +169,7 @@ fun UsageTipCard(tip: UsageTip) {
                     )
                 }
                 Text(
-                    tip.englishText,
+                    fact.englishText,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = Color(0xFF7A7A7A),
                         fontSize = 16.sp
@@ -149,28 +177,29 @@ fun UsageTipCard(tip: UsageTip) {
                 )
             }
         }
+
     }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF7F7FB)
 @Composable
-fun UsageTipsPreview() {
-    val tips = listOf(
-        UsageTip(
-            tipNumber = 1,
+fun FactListPreview() {
+    val facts = listOf(
+        FactItem(
+            factNumber = 4,
             foreignLang = "German",
             foreignFlag = "\uD83C\uDDE9\uD83C\uDDEA", // 🇩🇪
-            foreignText = "Ringe werden oft als Schmuck getragen.",
+            foreignText = "Der Ringfinger ist traditionell der vierte Finger der Hand.",
             englishFlag = "\uD83C\uDDFA\uD83C\uDDF8", // 🇺🇸
-            englishText = "Rings are often worn as jewelry."
+            englishText = "The ring finger is traditionally the fourth finger of the hand."
         ),
-        UsageTip(
-            tipNumber = 2,
+        FactItem(
+            factNumber = 5,
             foreignLang = "German",
             foreignFlag = "\uD83C\uDDE9\uD83C\uDDEA", // 🇩🇪
-            foreignText = "Ein Ring kann ein Symbol für Ehe oder Freundschaft sein.",
+            foreignText = "Goldene Ringe sind in vielen Kulturen ein Symbol für Reichtum.",
             englishFlag = "\uD83C\uDDFA\uD83C\uDDF8", // 🇺🇸
-            englishText = "A ring can be a symbol of marriage or friendship."
+            englishText = "Golden rings are a symbol of wealth in many cultures."
         )
     )
     Surface(color = Color(0xFFF7F7FB)) {
@@ -179,7 +208,7 @@ fun UsageTipsPreview() {
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            UsageTipsList(tips = tips)
+            FactList(facts = facts)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.umt.memingoapp.featureAr
+package com.umt.memingoapp.featureAr.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,12 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.umt.memingoapp.featureAr.models.RelatedWordItem
 
-data class RelatedWordItem(
-    val foreignWord: String,
-    val englishWord: String,
-    val onSoundClick: () -> Unit = {}
-)
 
 @Composable
 fun RelatedWordsCard(
@@ -62,8 +58,7 @@ fun RelatedWordsCard(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 20.sp,
                         color = Color(0xFF232323),
-                        fontWeight = FontWeight.SemiBold,
-                        // Replace with your handwriting font if needed
+                        fontWeight = FontWeight.SemiBold
                     )
                 )
             }
@@ -93,16 +88,15 @@ fun RelatedWordListItem(
     ) {
         Column(Modifier.weight(1f)) {
             Text(
-                text = item.foreignWord,
+                text = item.word,
                 style = MaterialTheme.typography.titleMedium.copy(
                     color = Color(0xFF267A82),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
-                    // Replace with handwriting font if needed
                 )
             )
             Text(
-                text = item.englishWord,
+                text = item.translation,
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = Color(0xFF7A7A7A),
                     fontSize = 16.sp

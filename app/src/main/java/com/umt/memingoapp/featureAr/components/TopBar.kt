@@ -1,4 +1,4 @@
-package com.umt.memingoapp.featureAr
+package com.umt.memingoapp.featureAr.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

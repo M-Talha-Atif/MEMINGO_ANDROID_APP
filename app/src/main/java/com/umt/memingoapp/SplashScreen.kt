@@ -115,7 +115,6 @@ fun GetStartedScreen(navController: NavHostController) {
     Scaffold {
         Column {
             HorizontalPager(
-//                = listData.size,
                 state = pagerState,
                 modifier = Modifier.weight(0.6f)
             ) { page ->

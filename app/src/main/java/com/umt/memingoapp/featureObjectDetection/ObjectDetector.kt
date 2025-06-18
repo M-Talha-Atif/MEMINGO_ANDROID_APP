@@ -137,4 +137,8 @@ class ObjectDetector(
         }
         return detectedObjectList.take(4)
     }
+
+    fun cleanUp() {
+        interpreter.close()
+    }
 }

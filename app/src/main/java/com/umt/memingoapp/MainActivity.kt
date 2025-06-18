@@ -1,5 +1,6 @@
 package com.umt.memingoapp
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,7 +33,12 @@ import androidx.compose.ui.unit.dp
 import com.umt.memingoapp.navigation.MyNavHost
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.umt.memingoapp.navigation.Screen
+import com.umt.memingoapp.viewmodels.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -43,14 +49,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MemingoAppTheme {
                 val navController = rememberNavController()
-                var showSplash by remember { mutableStateOf(true) }
-                if (showSplash) {
-                    SplashScreen(onSplashEnd = { showSplash = false })
-                } else {
-//                    MainScreen()
-//                    GetStartedScreen()
-                    MyNavHost(navController = navController)
-                }
+                MyNavHost(navController = navController)
 
             }
         }
@@ -61,11 +60,32 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun SplashScreen(onSplashEnd: () -> Unit) {
+fun SplashScreen(onSplashEnd: () -> Unit, navController: NavHostController) {
+
+    val context = LocalContext.current
+    val sharedPrefs = context.getSharedPreferences("AuthPrefs", Context.MODE_PRIVATE)
+    val token = sharedPrefs.getString("token", null)
+    val isFirstTime = sharedPrefs.getBoolean("is_first_time", true)
+
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         isVisible = true
         delay(2000) // Delay to show splash screen for 2 seconds
+
+        val nextRoute = when {
+            isFirstTime -> {
+                sharedPrefs.edit().putBoolean("is_first_time", false).apply()
+                Screen.GetStarted.route
+            }
+            !token.isNullOrEmpty() -> Screen.HomeScreen.route
+            else -> Screen.Login.route
+        }
+
+        navController.navigate(nextRoute) {
+            popUpTo(0) { inclusive = true } // Prevent going back to splash
+            launchSingleTop = true
+        }
+
         onSplashEnd()
     }
 
@@ -73,9 +93,6 @@ fun SplashScreen(onSplashEnd: () -> Unit) {
     val scale by animateFloatAsState(
         targetValue = if (isVisible) 1f else 0.8f, // Start slightly smaller and grow to full size
         animationSpec = tween(durationMillis = 1000, easing = FastOutLinearInEasing)
-//        animationSpec = spring( dampingRatio = Spring.DampingRatioMediumBouncy,
-//            stiffness = Spring.StiffnessMedium
-//        )
 
     )
 

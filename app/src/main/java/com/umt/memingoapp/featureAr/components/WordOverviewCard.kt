@@ -1,4 +1,4 @@
-package com.umt.memingoapp.featureAr
+package com.umt.memingoapp.featureAr.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -7,18 +7,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.ListAlt
-import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -81,6 +76,9 @@ fun WordLearningCard(
             .background(Color.White, shape = RoundedCornerShape(24.dp))
             .animateContentSize(),
         shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
 
@@ -169,11 +167,12 @@ fun WordLearningCard(
                         textColor = LogoColor
                     )
                     ChipIcon(
-                        icon = null,
+                        iconRes = R.drawable.german,
                         label = language,
                         bgColor = Color(0xFFF0F3F8),
                         textColor = LogoColor,
-                        trailingIconRes = R.drawable.p1 // flag
+                        icon = null,
+                        trailingIconRes = null
                     )
                 }
                 // Save Learning Pack Button
@@ -231,6 +230,7 @@ fun WordLearningCard(
     @Composable
     fun ChipIcon(
         icon: ImageVector?,
+        iconRes: Int? = null,
         label: String,
         bgColor: Color,
         textColor: Color,
@@ -242,6 +242,15 @@ fun WordLearningCard(
                 .background(bgColor, shape = RoundedCornerShape(14.dp))
                 .padding(horizontal = 11.dp, vertical = 6.dp)
         ) {
+
+            if (iconRes != null)
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(19.dp),
+                    tint = Color.Unspecified // don't tint flags or images
+                )
+
             if (icon != null)
                 Icon(
                     icon,

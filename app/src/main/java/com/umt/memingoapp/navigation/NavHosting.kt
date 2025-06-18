@@ -1,32 +1,32 @@
 package com.umt.memingoapp.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mlr_apps.objectdetection.ui.views.DetectionScreen
+import com.umt.memingoapp.featureObjectDetection.views.DetectionScreen
 import com.umt.memingoapp.CourseHomeScreen
 import com.umt.memingoapp.CourseSelectionScreen
 import com.umt.memingoapp.GetStartedScreen
+import com.umt.memingoapp.SplashScreen
 import com.umt.memingoapp.auth.LoginForm
 import com.umt.memingoapp.auth.OtpScreen
 import com.umt.memingoapp.auth.SignUpForm
-import com.umt.memingoapp.featureObjectDetection.YuvToRgbConverter
+import com.umt.memingoapp.featureAr.screen.ARLearningScreen
 import com.umt.memingoapp.lessons.LessonScreenWithViewModel
-import loadLabels
-import loadModel
-import org.tensorflow.lite.Interpreter
-import java.util.concurrent.Executors
 
 @Composable
 fun MyNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.GetStarted.route) {
+    NavHost(navController = navController, startDestination = Screen.Splash.route) {
+
+        composable(Screen.Splash.route) {
+            SplashScreen(navController = navController, onSplashEnd = {})
+        }
+
         composable(Screen.GetStarted.route) {
             GetStartedScreen(navController)
         }
+
         composable(Screen.Login.route) {
             LoginForm(navController)
         }
@@ -42,7 +42,6 @@ fun MyNavHost(navController: NavHostController) {
 
         composable(Screen.HomeScreen.route) {
           CourseSelectionScreen(navController)
-
         }
 
 
@@ -64,28 +63,32 @@ fun MyNavHost(navController: NavHostController) {
             )
         }
 
-        composable("ar_scan") {
-            // Only for demonstration: You should ideally provide these from a shared ViewModel or singleton!
-            val context = LocalContext.current
-            val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
-            val interpreter = remember { Interpreter(loadModel(context)) }
-            val labels = remember { loadLabels(context) }
-            val yuvToRgbConverter = remember { YuvToRgbConverter(context) }
+        composable("${Screen.VocabularyScreen.route}/{course_id}/{courseName}/{word}") { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("courseName") ?: ""
+            val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
+            val word = backStackEntry.arguments?.getString("word") ?: ""
+            ARLearningScreen(
+                moduleTitle =  "Learn about $word",
+                courseId = courseId,
+                language = courseName,
+                wordName = word,
+                navController = navController,
+                onClose = {},
+                onScan = {}
+            )
+        }
 
-            DisposableEffect(Unit) {
-                onDispose {
-                    cameraExecutor.shutdown()
-                    interpreter.close()
-                }
-            }
+        composable("${Screen.ARScreen.route}/{courseName}/{courseId}") {
+                backStackEntry ->
+
 
             DetectionScreen(
-                cameraExecutor = cameraExecutor,
-                yuvToRgbConverter = yuvToRgbConverter,
-                interpreter = interpreter,
-                labels = labels
+                navController = navController,
+                courseId = backStackEntry.arguments?.getString("courseId") ?: "",
+                courseName = backStackEntry.arguments?.getString("courseName") ?: ""
             )
         }
     }
+
     }
 
