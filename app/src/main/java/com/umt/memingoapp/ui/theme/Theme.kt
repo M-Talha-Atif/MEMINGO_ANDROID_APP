@@ -1,6 +1,5 @@
 package com.umt.memingoapp.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,7 +10,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.umt.memingoapp.uiComponents.AppTypography
+import com.umt.memingoapp.presentation.shared_components.AppTypography
 
 // Update your theme file (ui.theme/Theme.kt)
 private val LightColorScheme = lightColorScheme(

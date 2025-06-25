@@ -2,9 +2,9 @@ package com.umt.memingoapp
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,31 +15,21 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.umt.memingoapp.navigation.MyNavHost
+import com.umt.memingoapp.presentation.navigation.MyNavHost
 import kotlinx.coroutines.delay
-import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.umt.memingoapp.navigation.Screen
-import com.umt.memingoapp.viewmodels.AuthViewModel
+import com.umt.memingoapp.presentation.navigation.routes.Screen
 import dagger.hilt.android.AndroidEntryPoint
+import org.json.JSONObject
 
 
 @AndroidEntryPoint
@@ -58,6 +48,23 @@ class MainActivity : ComponentActivity() {
 
 
 
+fun isTokenExpired(token: String): Boolean {
+    return try {
+        val parts = token.split(".")
+        if (parts.size != 3) return true
+
+        val payload = String(Base64.decode(parts[1], Base64.URL_SAFE), Charsets.UTF_8)
+        val jsonObject = JSONObject(payload)
+        val exp = jsonObject.getLong("exp")
+        val currentTime = System.currentTimeMillis() / 1000 // in seconds
+
+        exp < currentTime
+    } catch (e: Exception) {
+        true // If parsing fails, assume token is invalid
+    }
+}
+
+
 
 @Composable
 fun SplashScreen(onSplashEnd: () -> Unit, navController: NavHostController) {
@@ -72,12 +79,14 @@ fun SplashScreen(onSplashEnd: () -> Unit, navController: NavHostController) {
         isVisible = true
         delay(2000) // Delay to show splash screen for 2 seconds
 
+        val isTokenValid = !token.isNullOrEmpty() && !isTokenExpired(token)
+
         val nextRoute = when {
             isFirstTime -> {
                 sharedPrefs.edit().putBoolean("is_first_time", false).apply()
                 Screen.GetStarted.route
             }
-            !token.isNullOrEmpty() -> Screen.HomeScreen.route
+            isTokenValid -> Screen.HomeScreen.route
             else -> Screen.Login.route
         }
 
