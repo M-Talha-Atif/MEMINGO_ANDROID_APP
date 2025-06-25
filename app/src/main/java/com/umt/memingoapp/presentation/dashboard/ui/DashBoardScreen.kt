@@ -477,7 +477,7 @@ fun BottomNavigationBar(navController: NavController, courseId: String) {
         containerColor = LogoColor
     ) {
         BottomNavItem( route = "${Screen.Dashboard.route}/$courseId", Icons.Default.Home, "Home", navController, currentDestination)
-        BottomNavItem("profile", Icons.Default.Person, "Profile", navController, currentDestination)
+        BottomNavItem(route = "${Screen.Profile.route}/$courseId", Icons.Default.Person, "Profile", navController, currentDestination)
         BottomNavItem("chat", Icons.Default.Chat, "Chat", navController, currentDestination)
         BottomNavItem("leaderboard", Icons.Default.Leaderboard, "Leaderboard", navController, currentDestination)
     }
@@ -514,40 +514,7 @@ private fun RowScope.BottomNavItem(
     )
 }
 
-fun getCourseLocale(courseId: String): Locale {
-    val language = courseId.substringBefore("-").lowercase()
-    return when (language) {
-        "german" -> Locale.GERMAN
-        "spanish" -> Locale("es")  // Spanish (es)
-        "italian" -> Locale.ITALIAN
-        "french" -> Locale.FRENCH
-        "japanese" -> Locale.JAPANESE
-        "russian" -> Locale("ru")   // Russian (ru)
-        "korean" -> Locale.KOREAN
-        "chinese" -> Locale.CHINESE
-        "portuguese" -> Locale("pt") // Portuguese (pt)
-        // Add more languages as needed
-        else -> Locale.ENGLISH // Default fallback
-    }
-}
 
-fun getCourseLanguageTag(courseId: String): String {
-    val language = courseId.substringBefore("-").lowercase()
-    return when (language) {
-        "german" -> "de-DE"
-        "spanish" -> "es-ES"
-        "italian" -> "it-IT"
-        "french" -> "fr-FR"
-        "japanese" -> "ja-JP"
-        "russian" -> "ru-RU"
-        "korean" -> "ko-KR"
-        "chinese" -> "zh-CN"
-        "portuguese" -> "pt-PT"
-        "english" -> "en-US"
-        // Add more as needed
-        else -> "en-US" // Default fallback
-    }
-}
 
 
 

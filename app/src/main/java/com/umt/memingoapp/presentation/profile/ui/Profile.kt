@@ -19,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,60 +34,68 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.umt.memingoapp.R
+import com.umt.memingoapp.presentation.dashboard.ui.BottomNavigationBar
 
 val LogoColor = Color(0xFF256470)
 
 @Composable
-fun UserSettingsScreen(navController: NavHostController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .background(Color.White)
-    ) {
-        ProfileHeader()
+fun UserSettingsScreen(navController: NavHostController, courseId: String) {
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(navController = navController, courseId = courseId)
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .background(Color.White)
+        ) {
+            ProfileHeader()
 
-        SettingsSection(
-            title = "ACCOUNT",
-            items = listOf(
-                SettingsItem(
-                    iconRes = R.drawable.ic_profile,
-                    title = "Edit Profile",
-                    description = "Update your personal information"
-                ),
-                SettingsItem(
-                    iconRes = R.drawable.ic_notification,
-                    title = "Notifications",
-                    description = "Manage your notification preferences"
-                ),
-                SettingsItem(
-                    iconRes = R.drawable.ic_privacy,
-                    title = "Privacy & Security",
-                    description = "Control your privacy settings"
+            SettingsSection(
+                title = "ACCOUNT",
+                items = listOf(
+                    SettingsItem(
+                        iconRes = R.drawable.ic_profile,
+                        title = "Edit Profile",
+                        description = "Update your personal information"
+                    ),
+                    SettingsItem(
+                        iconRes = R.drawable.ic_notification,
+                        title = "Notifications",
+                        description = "Manage your notification preferences"
+                    ),
+                    SettingsItem(
+                        iconRes = R.drawable.ic_privacy,
+                        title = "Privacy & Security",
+                        description = "Control your privacy settings"
+                    )
                 )
             )
-        )
 
-        SettingsSection(
-            title = "SUPPORT",
-            items = listOf(
-                SettingsItem(
-                    iconRes = R.drawable.ic_help,
-                    title = "Help Center",
-                    description = "Get help and support"
-                ),
-                SettingsItem(
-                    iconRes = R.drawable.ic_contact,
-                    title = "Contact Us",
-                    description = "Send us a message"
-                ),
-                SettingsItem(
-                    iconRes = R.drawable.ic_rate,
-                    title = "Rate App",
-                    description = "Share your feedback"
+            SettingsSection(
+                title = "SUPPORT",
+                items = listOf(
+                    SettingsItem(
+                        iconRes = R.drawable.ic_help,
+                        title = "Help Center",
+                        description = "Get help and support"
+                    ),
+                    SettingsItem(
+                        iconRes = R.drawable.ic_contact,
+                        title = "Contact Us",
+                        description = "Send us a message"
+                    ),
+                    SettingsItem(
+                        iconRes = R.drawable.ic_rate,
+                        title = "Rate App",
+                        description = "Share your feedback"
+                    )
                 )
             )
-        )
+        }
     }
 }
 
@@ -216,6 +225,6 @@ data class SettingsItem(
 fun PreviewUserSettingsScreen() {
     MaterialTheme {
         val mockNavController = rememberNavController()
-        UserSettingsScreen(mockNavController)
+        UserSettingsScreen(mockNavController,"german-1")
     }
 }

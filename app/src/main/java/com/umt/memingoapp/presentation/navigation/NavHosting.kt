@@ -1,5 +1,6 @@
 package com.umt.memingoapp.presentation.navigation
 
+import UserSettingsScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -38,6 +39,11 @@ fun MyNavHost(navController: NavHostController) {
         composable("${Screen.Otp.route}/{email}") { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
             OtpScreen(navController, email)
+        }
+
+        composable("${Screen.Profile.route}/{course_id}") { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("course_id") ?: ""
+            UserSettingsScreen(navController,courseId)
         }
 
 

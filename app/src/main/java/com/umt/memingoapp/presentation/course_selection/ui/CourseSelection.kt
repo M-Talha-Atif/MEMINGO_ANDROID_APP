@@ -43,7 +43,7 @@ import com.umt.memingoapp.presentation.course_selection.viewmodel.ResultType
 import com.umt.memingoapp.presentation.course_selection.viewmodel.CourseViewModel
 import kotlinx.coroutines.launch
 
-
+import com.umt.memingoapp.presentation.shared_components.*
 
 
 @Composable
@@ -511,15 +511,6 @@ fun LanguageDialog(
 
 
 
-@Composable
-private fun LoadingIndicator() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-       LoadingAnimation()
-    }
-}
 
 @Composable
 private fun ErrorMessage(message: String) {

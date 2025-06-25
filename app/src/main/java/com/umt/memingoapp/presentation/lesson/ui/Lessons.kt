@@ -1,6 +1,7 @@
 package com.umt.memingoapp.presentation.lesson.ui
 
 
+import MatchPairsContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +30,6 @@ import com.umt.memingoapp.presentation.lesson.components.helpers.BackConfirmatio
 import com.umt.memingoapp.presentation.lesson.components.DragAndDropSentenceContent
 import com.umt.memingoapp.presentation.lesson.components.FillInBlankContent
 import com.umt.memingoapp.presentation.lesson.components.ListenAndSelectContent
-import com.umt.memingoapp.presentation.lesson.components.MatchPairsContent
 import com.umt.memingoapp.presentation.lesson.components.MultipleChoiceContent
 import com.umt.memingoapp.presentation.lesson.components.PronunciationPracticeContent
 import com.umt.memingoapp.presentation.lesson.components.SentenceBuilderContent
@@ -39,6 +39,7 @@ import com.umt.memingoapp.presentation.lesson.viewmodel.LessonUiState
 import com.umt.memingoapp.presentation.lesson.viewmodel.LessonViewModel
 import com.umt.memingoapp.presentation.lesson.viewmodel.MAX_HEARTS
 import com.umt.memingoapp.presentation.lesson.viewmodel.QuestionResult
+import com.umt.memingoapp.presentation.shared_components.LoadingIndicator
 import java.util.Locale
 
 
@@ -112,7 +113,6 @@ fun LessonScreenWithViewModel(
 
     val courseTag = getCourseLanguageTag(courseId)
 
-//    val lessonId = "german-vocabulary-1"
 
 
 
@@ -135,142 +135,155 @@ fun LessonScreenWithViewModel(
         )
     }
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ){
+        if (uiState is LessonUiState.Loading){
+            LoadingIndicator()
+        }
 
-    LessonScreen(
-        lessonName = lessonTitle,
-        currentQuestion = (currentIndex + 1).coerceAtMost(questions.size),
-        totalQuestions = questions.size,
-        percentCompleted = (((currentIndex + 1).toFloat() / (questions.size.coerceAtLeast(1))) * 100).toInt(),
-        questionResults = questionResults,
-        hearts = hearts,
-        onBack = { showExitDialog = true },
-        content = {
-            when {
-                hearts <= 0 -> {
+        LessonScreen(
+            lessonName = lessonTitle,
+            currentQuestion = (currentIndex + 1).coerceAtMost(questions.size),
+            totalQuestions = questions.size,
+            percentCompleted = (((currentIndex + 1).toFloat() / (questions.size.coerceAtLeast(1))) * 100).toInt(),
+            questionResults = questionResults,
+            hearts = hearts,
+            onBack = { showExitDialog = true },
+            content = {
+                when {
+                    hearts <= 0 -> {
 
-                    var didSubmit by remember { mutableStateOf(false) }
-                    var submitSuccess by remember { mutableStateOf<Boolean?>(null) }
+                        var didSubmit by remember { mutableStateOf(false) }
+                        var submitSuccess by remember { mutableStateOf<Boolean?>(null) }
 
-                    LaunchedEffect(Unit) {
-                        if (!didSubmit) {
-                            didSubmit = true
-                            lessonViewModel.finishLesson(
-                                courseId = courseId,
-                                lessonId = lessonId,
-                                onResult = { success -> submitSuccess = success }
-                            )
+                        LaunchedEffect(Unit) {
+                            if (!didSubmit) {
+                                didSubmit = true
+                                lessonViewModel.finishLesson(
+                                    courseId = courseId,
+                                    lessonId = lessonId,
+                                    onResult = { success -> submitSuccess = success }
+                                )
+                            }
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
+                            Text("You've run out of hearts!", color = Color.Red)
+                            if (submitSuccess == false) {
+                                Text("Failed to submit results.", color = Color.Red)
+                            }
+                            Button(
+                                onClick = { navHostController.popBackStack() },
+                                modifier = Modifier.padding(top = 16.dp)
+                            ) {
+                                Text("Quit Lesson")
+                            }
                         }
                     }
+                    currentIndex >= questions.size -> {
+                        // This block renders when lesson is complete
+                        var didSubmit by remember { mutableStateOf(false) }
+                        var submitSuccess by remember { mutableStateOf<Boolean?>(null) }
 
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
-                        Text("You've run out of hearts!", color = Color.Red)
-                        if (submitSuccess == false) {
-                            Text("Failed to submit results.", color = Color.Red)
+                        LaunchedEffect(Unit) {
+                            if (!didSubmit) {
+                                didSubmit = true
+                                lessonViewModel.finishLesson(
+                                    courseId = courseId,
+                                    lessonId = lessonId,
+                                    onResult = { success -> submitSuccess = success }
+                                )
+                            }
                         }
-                        Button(
-                            onClick = { navHostController.popBackStack() },
-                            modifier = Modifier.padding(top = 16.dp)
-                        ) {
-                            Text("Quit Lesson")
-                        }
-                    }
-                }
-                currentIndex >= questions.size -> {
-                    // This block renders when lesson is complete
-                    var didSubmit by remember { mutableStateOf(false) }
-                    var submitSuccess by remember { mutableStateOf<Boolean?>(null) }
 
-                    LaunchedEffect(Unit) {
-                        if (!didSubmit) {
-                            didSubmit = true
-                            lessonViewModel.finishLesson(
-                                courseId = courseId,
-                                lessonId = lessonId,
-                                onResult = { success -> submitSuccess = success }
-                            )
-                        }
-                    }
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
-                        Text("Congratulations! Lesson Completed.", color = LogoColor)
-                        if (submitSuccess == false) {
-                            Text("Failed to submit results.", color = Color.Red)
-                        }
-                        Button(
-                            onClick = { navHostController.popBackStack() },
-                            modifier = Modifier.padding(top = 16.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = LogoColor,
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text("Finish")
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
+                            Text("Congratulations! Lesson Completed.", color = LogoColor)
+                            if (submitSuccess == false) {
+                                Text("Failed to submit results.", color = Color.Red)
+                            }
+                            Button(
+                                onClick = { navHostController.popBackStack() },
+                                modifier = Modifier.padding(top = 16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = LogoColor,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Finish")
+                            }
                         }
                     }
-                }
-                else -> {
-                    when (val q = questions[currentIndex]) {
-                        is LessonQuestion.ListenAndSelectQuestion ->
-                            ListenAndSelectContent(
-                                content = q.content,
-                                language = courseLocale,
-                                        explanation = q.content.explanation,
-                                onCorrect = { lessonViewModel.onCorrect() },
-                                courseTag = courseTag,
-                                onWrong = { lessonViewModel.onWrong() }
-                            )
-                        is LessonQuestion.PronunciationQuestion ->
-                            PronunciationPracticeContent(
-                                word = q.word,
-                                language = courseLocale,
-                                onCorrect = { lessonViewModel.onCorrect() },
-                                courseTag = courseTag,
-                                onWrong = { lessonViewModel.onWrong() }
-                            )
-                        is LessonQuestion.SentenceBuilderQuestion ->
-                            SentenceBuilderContent(
-                                content = q.content,
-                                onCorrect = { lessonViewModel.onCorrect() },
-                                onWrong = { lessonViewModel.onWrong() }
-                            )
-                        is LessonQuestion.TypeTranslationQuestion ->
-                            TypeTranslationContent(
-                                content = q.content,
-                                onCorrect = { lessonViewModel.onCorrect() },
-                                onWrong = { lessonViewModel.onWrong() }
-                            )
-                        is LessonQuestion.DragAndDropQuestion ->
-                            DragAndDropSentenceContent(
-                                content = q.content,
-                                onCorrect = { lessonViewModel.onCorrect() },
-                                onWrong = { lessonViewModel.onWrong() }
-                            )
+                    else -> {
+                        when (val q = questions[currentIndex]) {
+                            is LessonQuestion.ListenAndSelectQuestion ->
+                                ListenAndSelectContent(
+                                    content = q.content,
+                                    language = courseLocale,
+                                    explanation = q.content.explanation,
+                                    onCorrect = { lessonViewModel.onCorrect() },
+                                    courseTag = courseTag,
+                                    onWrong = { lessonViewModel.onWrong() }
+                                )
+                            is LessonQuestion.PronunciationQuestion ->
+                                PronunciationPracticeContent(
+                                    word = q.word,
+                                    language = courseLocale,
+                                    onCorrect = { lessonViewModel.onCorrect() },
+                                    courseTag = courseTag,
+                                    onWrong = { lessonViewModel.onWrong() }
+                                )
+                            is LessonQuestion.SentenceBuilderQuestion ->
+                                SentenceBuilderContent(
+                                    content = q.content,
+                                    onCorrect = { lessonViewModel.onCorrect() },
+                                    onWrong = { lessonViewModel.onWrong() }
+                                )
+                            is LessonQuestion.TypeTranslationQuestion ->
+                                TypeTranslationContent(
+                                    content = q.content,
+                                    onCorrect = { lessonViewModel.onCorrect() },
+                                    onWrong = { lessonViewModel.onWrong() }
+                                )
+                            is LessonQuestion.DragAndDropQuestion ->
+                                DragAndDropSentenceContent(
+                                    content = q.content,
+                                    onCorrect = { lessonViewModel.onCorrect() },
+                                    onWrong = { lessonViewModel.onWrong() }
+                                )
 
-                        is LessonQuestion.MatchPairsQuestion ->
-                            MatchPairsContent(
-                                content = q.content,
-                                onCorrect = { lessonViewModel.onCorrect() },
-                                onWrong = { lessonViewModel.onWrong() }
-                            )
+                            is LessonQuestion.MatchPairsQuestion ->
+                                MatchPairsContent(
+                                    content = q.content,
+                                    onCorrect = { lessonViewModel.onCorrect() },
+                                    onWrong = { lessonViewModel.onWrong() }
+                                )
 
-                        is LessonQuestion.MultipleChoiceQuestion ->
-                            MultipleChoiceContent(
-                                content = q.content,
-                                onCorrect = { lessonViewModel.onCorrect() },
-                                onWrong = { lessonViewModel.onWrong() }
-                            )
+                            is LessonQuestion.MultipleChoiceQuestion ->
+                                MultipleChoiceContent(
+                                    content = q.content,
+                                    onCorrect = { lessonViewModel.onCorrect() },
+                                    onWrong = { lessonViewModel.onWrong() }
+                                )
 
-                        is LessonQuestion.FillInBlankQuestion ->
-                            FillInBlankContent(
-                                content = q.content,
-                                onCorrect = { lessonViewModel.onCorrect() },
-                                onWrong = { lessonViewModel.onWrong() }
-                            )
+                            is LessonQuestion.FillInBlankQuestion ->
+                                FillInBlankContent(
+                                    content = q.content,
+                                    onCorrect = { lessonViewModel.onCorrect() },
+                                    onWrong = { lessonViewModel.onWrong() }
+                                )
+                        }
                     }
                 }
             }
-        }
-    )
+        )
+
+    }
+
+
+
 }
 
 
