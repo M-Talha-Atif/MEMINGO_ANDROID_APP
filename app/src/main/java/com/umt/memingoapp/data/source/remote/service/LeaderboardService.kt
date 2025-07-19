@@ -6,7 +6,7 @@ import retrofit2.http.Query
 
 interface LeaderboardService {
 
-    @GET("leaderboard")
+    @GET("/leaderboard")
     suspend fun getLeaderboard(
         @Query("period") period: String
     ): LeaderboardResponse

@@ -6,13 +6,15 @@ import com.umt.memingoapp.domain.model.response.ActivityDeserializer
 import com.umt.memingoapp.data.source.remote.service.CourseService
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 // This Client will work with fetching courses and to add new courses
 object CourseRetrofitClient {
-    private const val BASE_URL = "https://memingo-backend.vercel.app/"
+    private const val BASE_URL = "https://memingo-backend-pi.vercel.app/"
 
 
     // Provides an Interceptor to add the Authorization token to API requests
@@ -40,9 +42,15 @@ object CourseRetrofitClient {
         // OkHttpClient configured with interceptors
 
         val client = OkHttpClient.Builder()
+            .protocols(listOf(Protocol.HTTP_1_1))
             .addInterceptor(loggingInterceptor)
             .addInterceptor(provideTokenInterceptor(context))
             .build()
+        /*
+        *   .connectTimeout(600, TimeUnit.SECONDS)
+            .readTimeout(600, TimeUnit.SECONDS)
+            .writeTimeout(600, TimeUnit.SECONDS)
+            .callTimeout(700, TimeUnit.SECONDS)*/
 
         val gson = GsonBuilder()
             .registerTypeAdapter(Activity::class.java, ActivityDeserializer())

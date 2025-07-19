@@ -64,11 +64,11 @@ object AppModule {
     @Singleton
     fun provideRetrofit(client: OkHttpClient): Retrofit {
         val gson = GsonBuilder()
-            .registerTypeAdapter(Activity::class.java, ActivityDeserializer()) // You can skip this if not needed here
+            .registerTypeAdapter(Activity::class.java, ActivityDeserializer())
             .create()
 
         return Retrofit.Builder()
-            .baseUrl("https://memingo-backend.vercel.app/") // ✅ Use your base URL here
+            .baseUrl("https://memingo-backend-pi.vercel.app/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()
