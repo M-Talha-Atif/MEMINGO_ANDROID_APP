@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.presentation.theme.LogoColor
 
 
 @Preview(showBackground = true)

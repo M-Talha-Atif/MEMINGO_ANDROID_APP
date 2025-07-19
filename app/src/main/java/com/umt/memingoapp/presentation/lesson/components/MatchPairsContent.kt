@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.umt.memingoapp.domain.model.response.ActivityContent
 import com.umt.memingoapp.domain.model.response.PairData
-import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.presentation.theme.LogoColor
 
 // --- PAIR HIGHLIGHT COLORS ---
 val pairHighlightColors = listOf(

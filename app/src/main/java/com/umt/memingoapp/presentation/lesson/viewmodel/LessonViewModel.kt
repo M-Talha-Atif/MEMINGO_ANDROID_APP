@@ -2,27 +2,22 @@ package com.umt.memingoapp.presentation.lesson.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umt.memingoapp.domain.model.response.Activity
 import com.umt.memingoapp.domain.model.response.ActivityContent
-import com.umt.memingoapp.domain.model.response.LessonResponse
 import com.umt.memingoapp.domain.model.response.PronunciationWord
 import com.umt.memingoapp.domain.model.request.UpdateLessonSubmitRequest
-import com.umt.memingoapp.data.repository.CourseRepository
+import com.umt.memingoapp.domain.repository.CourseRepository
+import com.umt.memingoapp.presentation.lesson.state.LessonUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 // For completeness
-sealed class LessonUiState {
-    object Loading : LessonUiState()
-    data class Success(
-        val lesson: LessonResponse,
-        val flattenedQuestions: List<LessonQuestion>
-    ) : LessonUiState()
-    data class Error(val message: String) : LessonUiState()
-}
 
 const val MAX_HEARTS = 3
 
@@ -41,8 +36,11 @@ sealed class LessonQuestion {
 enum class QuestionResult { Unanswered, Correct, Wrong }
 
 
-class LessonViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = CourseRepository(application.applicationContext)
+@HiltViewModel
+class LessonViewModel @Inject constructor(
+    private val repository: CourseRepository
+) : ViewModel()
+{
 
     private val _uiState = MutableStateFlow<LessonUiState>(LessonUiState.Loading)
     val uiState: StateFlow<LessonUiState> = _uiState

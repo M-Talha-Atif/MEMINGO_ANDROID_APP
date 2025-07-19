@@ -45,12 +45,13 @@ import androidx.navigation.compose.rememberNavController
 import com.umt.memingoapp.presentation.auth.viewmodel.AuthViewModel
 import com.umt.memingoapp.presentation.auth.viewmodel.AuthViewModelFactory
 import com.umt.memingoapp.presentation.navigation.routes.Screen
-import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.presentation.theme.LogoColor
 import com.umt.memingoapp.presentation.shared_components.LoadingAnimation
 import com.umt.memingoapp.presentation.shared_components.PasswordField
 import com.umt.memingoapp.presentation.shared_components.SimpleField
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import com.umt.memingoapp.R
 import com.umt.memingoapp.presentation.splash.ui.TopHeader
@@ -103,12 +104,10 @@ fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel
                     contentDescription = "LoginImage",
                     modifier = Modifier.size(200.dp)
                 )
-
-                Text("Login", style = TextStyle(color = Color.Black, fontSize = 18.sp))
                 Spacer(Modifier.height(16.dp))
                 Text(
                     "Welcome Back",
-                    style = TextStyle(color = Color.Black, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                    style = TextStyle(color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 )
                 Spacer(Modifier.height(16.dp))
 
@@ -194,7 +193,7 @@ fun LoginForm(navController: NavHostController,     authViewModel: AuthViewModel
 
                 Spacer(Modifier.height(16.dp))
                 Row {
-                    Text("New user?", style = TextStyle(color = Color.Black, fontSize = 16.sp))
+                    Text("New user?", style = TextStyle(color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp))
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = "SignUp",

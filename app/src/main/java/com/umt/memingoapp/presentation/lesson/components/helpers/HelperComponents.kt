@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.presentation.theme.LogoColor
 import kotlinx.coroutines.delay
 
 

@@ -29,6 +29,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,7 +56,7 @@ import com.umt.memingoapp.presentation.splash.ui.TopHeader
 import com.umt.memingoapp.presentation.auth.viewmodel.AuthViewModel
 import com.umt.memingoapp.presentation.auth.viewmodel.AuthViewModelFactory
 import com.umt.memingoapp.presentation.navigation.routes.Screen
-import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.presentation.theme.LogoColor
 import com.umt.memingoapp.presentation.shared_components.LoadingAnimation
 import com.umt.memingoapp.presentation.shared_components.PasswordField
 import com.umt.memingoapp.presentation.shared_components.PhoneField
@@ -104,23 +105,11 @@ fun SignUpForm(
                     modifier = Modifier.size(200.dp)
                 )
 
-                Text(
-                    "Sign Up",
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
-                    )
-                )
                 Spacer(Modifier.height(16.dp))
 
                 Text(
                     "Learn and Grow",
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    style = TextStyle(color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 )
                 Spacer(Modifier.height(16.dp))
 
@@ -282,12 +271,7 @@ fun SignUpForm(
                 Row {
                     Text(
                         "Old user?",
-                        style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal
-                        )
-                    )
+                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp))
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = "Login",

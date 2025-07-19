@@ -47,7 +47,8 @@ import com.umt.memingoapp.presentation.objectDetection.viewmodel.DetectionViewMo
 import com.umt.memingoapp.presentation.objectDetection.components.ObjectDetector
 import com.umt.memingoapp.R
 import com.umt.memingoapp.presentation.navigation.routes.Screen
-import com.umt.memingoapp.ui.theme.MemingoAppTheme
+import com.umt.memingoapp.presentation.objectDetection.components.DetectionBoxesOverlay
+import com.umt.memingoapp.presentation.theme.MemingoAppTheme
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -210,69 +211,80 @@ fun CameraPreview(
                 previewView
             }
         )
+        DetectionBoxesOverlay(
+            detectionList = detectionListObject,
+            onBoxClick = { detectedObject ->
+                navController.navigate(
+                    "${Screen.VocabularyScreen.route}/$courseId/$courseName/${detectedObject.label}"
+                )
+            },
+            previewWidth = sizeWith,    // Use boxConstraint.maxWidth.toPx()
+            previewHeight = sizeHeight  // Use boxConstraint.maxHeight.toPx()
+        )
 
-        if (drawCanvas){
-            Canvas(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(detectionListObject) {
-                        detectTapGestures { offset ->
-                            detectionListObject.forEach { detectedObject ->
-                                val box = detectedObject.boundingBox
-                                if (offset.x >= box.left && offset.x <= box.right &&
-                                    offset.y >= box.top && offset.y <= box.bottom) {
-                                    Toast.makeText(
-                                        context,
-                                        "Clicked on: ${detectedObject.label}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-
-                                    // Navigate to vocabulary screen with the detected word
-                                    navController.navigate(
-                                        "${Screen.VocabularyScreen.route}/$courseId/$courseName/${detectedObject.label}"
-                                    )
-                                }
-
-                            }
-                        }
-                    },
-
-                onDraw = {
-
-                    detectionListObject.mapIndexed { i, detectionObject ->
-                        Log.d("Object", detectionObject.label + " --- "  +detectionObject.score)
-                        paint.apply {
-                            color = pathColorListInt[i]
-                            style = Paint.Style.FILL
-                            isAntiAlias = true
-                            textSize = 50f
-                        }
-
-                        drawRect(
-                            color = pathColorList[i],
-                            topLeft =  Offset(
-                                x = detectionObject.boundingBox.left,
-                                y = detectionObject.boundingBox.top
-                            ),
-                            size = androidx.compose.ui.geometry.Size(
-                                width = detectionObject.boundingBox.width(),
-                                height = detectionObject.boundingBox.height()
-                            ),
-                            style = Stroke(width = 3.dp.toPx())
-                        )
-
-                        drawIntoCanvas {
-                            it.nativeCanvas.drawText(
-                                detectionObject.label + " " + "%,.2f".format(detectionObject.score * 100) + "%",
-                                detectionObject.boundingBox.left,            // x-coordinates of the origin (top left)
-                                detectionObject.boundingBox.top - 5f, // y-coordinates of the origin (top left)
-                                paint
-                            )
-                        }
-                    }
-                }
-            )
-        }
+//        if (drawCanvas){
+//            Canvas(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .pointerInput(detectionListObject) {
+//                        detectTapGestures { offset ->
+//                            detectionListObject.forEach { detectedObject ->
+//                                val box = detectedObject.boundingBox
+//                                if (offset.x >= box.left && offset.x <= box.right &&
+//                                    offset.y >= box.top && offset.y <= box.bottom) {
+//                                    Log.d("AR Screen", "Clicked on: ${detectedObject.label}" )
+//                                    Toast.makeText(
+//                                        context,
+//                                        "Clicked on: ${detectedObject.label}",
+//                                        Toast.LENGTH_SHORT
+//                                    ).show()
+//
+//                                    // Navigate to vocabulary screen with the detected word
+//                                    navController.navigate(
+//                                        "${Screen.VocabularyScreen.route}/$courseId/$courseName/${detectedObject.label}"
+//                                    )
+//                                }
+//
+//                            }
+//                        }
+//                    },
+//
+//                onDraw = {
+//
+//                    detectionListObject.mapIndexed { i, detectionObject ->
+//                        Log.d("Object", detectionObject.label + " --- "  +detectionObject.score)
+//                        paint.apply {
+//                            color = pathColorListInt[i]
+//                            style = Paint.Style.FILL
+//                            isAntiAlias = true
+//                            textSize = 50f
+//                        }
+//
+//                        drawRect(
+//                            color = pathColorList[i],
+//                            topLeft =  Offset(
+//                                x = detectionObject.boundingBox.left,
+//                                y = detectionObject.boundingBox.top
+//                            ),
+//                            size = androidx.compose.ui.geometry.Size(
+//                                width = detectionObject.boundingBox.width(),
+//                                height = detectionObject.boundingBox.height()
+//                            ),
+//                            style = Stroke(width = 3.dp.toPx())
+//                        )
+//
+//                        drawIntoCanvas {
+//                            it.nativeCanvas.drawText(
+//                                detectionObject.label + " " + "%,.2f".format(detectionObject.score * 100) + "%",
+//                                detectionObject.boundingBox.left,            // x-coordinates of the origin (top left)
+//                                detectionObject.boundingBox.top - 5f, // y-coordinates of the origin (top left)
+//                                paint
+//                            )
+//                        }
+//                    }
+//                }
+//            )
+//        }
     }
 }
 

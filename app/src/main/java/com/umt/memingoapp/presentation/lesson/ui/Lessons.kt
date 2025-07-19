@@ -22,7 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.umt.memingoapp.ui.theme.LogoColor
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.umt.memingoapp.presentation.theme.LogoColor
 import com.umt.memingoapp.presentation.shared_components.AppTypography
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -35,7 +36,7 @@ import com.umt.memingoapp.presentation.lesson.components.PronunciationPracticeCo
 import com.umt.memingoapp.presentation.lesson.components.SentenceBuilderContent
 import com.umt.memingoapp.presentation.lesson.components.TypeTranslationContent
 import com.umt.memingoapp.presentation.lesson.viewmodel.LessonQuestion
-import com.umt.memingoapp.presentation.lesson.viewmodel.LessonUiState
+import com.umt.memingoapp.presentation.lesson.state.LessonUiState
 import com.umt.memingoapp.presentation.lesson.viewmodel.LessonViewModel
 import com.umt.memingoapp.presentation.lesson.viewmodel.MAX_HEARTS
 import com.umt.memingoapp.presentation.lesson.viewmodel.QuestionResult
@@ -83,12 +84,6 @@ fun getCourseLanguageTag(courseId: String): String {
     }
 }
 
-
-
-
-
-
-
 @Composable
 fun LessonScreenWithViewModel(
     courseId: String,
@@ -97,7 +92,8 @@ fun LessonScreenWithViewModel(
     onQuit: () -> Unit,
     navHostController: NavHostController
 ) {
-    val lessonViewModel: LessonViewModel = viewModel()
+    val lessonViewModel: LessonViewModel = hiltViewModel()
+
     val uiState by lessonViewModel.uiState.collectAsState()
     val currentIndex by lessonViewModel.currentQuestion.collectAsState()
     val hearts by lessonViewModel.hearts.collectAsState()

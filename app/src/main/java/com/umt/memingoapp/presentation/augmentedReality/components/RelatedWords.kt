@@ -1,5 +1,6 @@
 package com.umt.memingoapp.presentation.augmentedReality.components
 
+import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -13,15 +14,55 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umt.memingoapp.domain.model.uiModels.RelatedWordItem
+import java.util.Locale
+
+
+// Helper function to map language name to Locale
+fun getTTSLocale(language: String): Locale =
+    when (language.lowercase()) {
+        "german" -> Locale.GERMAN
+        "english" -> Locale.ENGLISH
+        "spanish" -> Locale("es")
+        "italian" -> Locale.ITALIAN
+        "french" -> Locale.FRENCH
+        else -> Locale.getDefault()
+    }
+
+// Centralized TTS controller for Compose
+@Composable
+fun rememberSingleTextToSpeech(language: String): (String) -> Unit {
+    val context = LocalContext.current
+    val ttsLocale = remember(language) { getTTSLocale(language) }
+    val tts = remember {
+        TextToSpeech(context) { }
+    }
+    DisposableEffect(tts) {
+        onDispose { tts.shutdown() }
+    }
+    // Set language whenever it changes
+    LaunchedEffect(ttsLocale) {
+        tts.language = ttsLocale
+    }
+    return remember(tts, ttsLocale) {
+        { text: String ->
+            tts.language = ttsLocale // Ensure correct language
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+    }
+}
 
 
 @Composable
@@ -30,6 +71,7 @@ fun RelatedWordsCard(
     language: String = "German",
     relatedWords: List<RelatedWordItem>
 ) {
+    val playSound = rememberSingleTextToSpeech(language)
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -63,7 +105,10 @@ fun RelatedWordsCard(
                 )
             }
             relatedWords.forEachIndexed { idx, wordItem ->
-                RelatedWordListItem(wordItem)
+                RelatedWordListItem(
+                    item = wordItem,
+                    onSoundClick = { playSound(wordItem.word) }
+                )
                 if (idx < relatedWords.lastIndex) {
                     Divider(
                         color = Color(0xFFE7E7EC),
@@ -78,7 +123,8 @@ fun RelatedWordsCard(
 
 @Composable
 fun RelatedWordListItem(
-    item: RelatedWordItem
+    item: RelatedWordItem,
+    onSoundClick: () -> Unit
 ) {
     Row(
         Modifier
@@ -110,7 +156,7 @@ fun RelatedWordListItem(
             color = Color(0xFFE6F0FA),
             shape = CircleShape,
             shadowElevation = 0.dp,
-            onClick = item.onSoundClick
+            onClick = onSoundClick
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
@@ -139,7 +185,8 @@ fun RelatedWordsCardPreview() {
                 .padding(12.dp)
         ) {
             RelatedWordsCard(
-                relatedWords = dummyWords
+                relatedWords = dummyWords,
+                language = "German"
             )
         }
     }

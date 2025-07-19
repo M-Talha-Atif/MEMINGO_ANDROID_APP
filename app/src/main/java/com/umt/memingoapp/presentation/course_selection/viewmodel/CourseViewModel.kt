@@ -1,25 +1,27 @@
 package com.umt.memingoapp.presentation.course_selection.viewmodel
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import com.umt.memingoapp.domain.model.request.UpdateLanguagePreferenceRequest
 import com.umt.memingoapp.domain.model.request.UpdateProgressRequest
 import com.umt.memingoapp.domain.model.response.CourseResponse
 import com.umt.memingoapp.domain.model.response.Language
 import com.umt.memingoapp.domain.model.response.LessonResponse
 import com.umt.memingoapp.domain.model.response.SingleCourseResponse
-import com.umt.memingoapp.data.repository.CourseRepository
+import com.umt.memingoapp.domain.repository.CourseRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
 
 
-
-class CourseViewModel(application: Application) : AndroidViewModel(application){
-
-    private val courseRepository = CourseRepository(application.applicationContext)
+@HiltViewModel
+class CourseViewModel  @Inject constructor(
+    private val courseRepository: CourseRepository
+) : ViewModel()
+{ // forgot to add this bracket, XD
 
     fun getAvailableCourses(): Flow<ResultType<List<CourseResponse>>> = flow {
         try {

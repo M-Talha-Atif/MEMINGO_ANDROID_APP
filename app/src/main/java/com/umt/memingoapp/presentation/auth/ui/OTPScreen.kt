@@ -23,7 +23,7 @@ import androidx.navigation.NavHostController
 import com.umt.memingoapp.presentation.auth.viewmodel.AuthViewModel
 import com.umt.memingoapp.presentation.auth.viewmodel.AuthViewModelFactory
 import com.umt.memingoapp.presentation.navigation.routes.Screen
-import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.presentation.theme.LogoColor
 import com.umt.memingoapp.presentation.shared_components.LoadingAnimation
 import com.umt.memingoapp.presentation.shared_components.OtpTextField
 

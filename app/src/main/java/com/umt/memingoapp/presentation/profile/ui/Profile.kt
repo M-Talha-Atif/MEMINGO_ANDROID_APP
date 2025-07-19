@@ -1,3 +1,4 @@
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,23 +35,26 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.umt.memingoapp.R
-import com.umt.memingoapp.presentation.dashboard.ui.BottomNavigationBar
+import com.umt.memingoapp.presentation.shared_components.BottomNavigationBar
 
 val LogoColor = Color(0xFF256470)
+
+
 
 @Composable
 fun UserSettingsScreen(navController: NavHostController, courseId: String) {
     Scaffold(
         bottomBar = {
             BottomNavigationBar(navController = navController, courseId = courseId)
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             ProfileHeader()
 
@@ -117,18 +121,16 @@ fun ProfileHeader() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-
-
         Text(
             text = "Minaam Ahmad",
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold
         )
 
         Text(
             text = "minaamahmad623@gmail.com",
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             fontSize = 14.sp
         )
 
@@ -145,7 +147,7 @@ fun SettingsSection(title: String, items: List<SettingsItem>) {
     ) {
         Text(
             text = title,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -155,7 +157,9 @@ fun SettingsSection(title: String, items: List<SettingsItem>) {
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
         ) {
             Column {
                 items.forEachIndexed { index, item ->
@@ -164,7 +168,7 @@ fun SettingsSection(title: String, items: List<SettingsItem>) {
                         Divider(
                             modifier = Modifier.padding(start = 16.dp),
                             thickness = 1.dp,
-                            color = Color.LightGray.copy(alpha = 0.5f)
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                         )
                     }
                 }
@@ -185,7 +189,7 @@ fun SettingItemRow(item: SettingsItem) {
         Icon(
             painter = painterResource(id = item.iconRes),
             contentDescription = item.title,
-            tint = LogoColor,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp)
         )
 
@@ -194,13 +198,13 @@ fun SettingItemRow(item: SettingsItem) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = item.description,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 fontSize = 14.sp
             )
         }
@@ -208,7 +212,7 @@ fun SettingItemRow(item: SettingsItem) {
         Icon(
             painter = painterResource(id = R.drawable.ic_arrow_right),
             contentDescription = "Right arrow",
-            tint = Color.Gray,
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             modifier = Modifier.size(20.dp)
         )
     }
@@ -222,9 +226,16 @@ data class SettingsItem(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewUserSettingsScreen() {
+fun PreviewUserSettingsScreenLight() {
     MaterialTheme {
-        val mockNavController = rememberNavController()
-        UserSettingsScreen(mockNavController,"german-1")
+        UserSettingsScreen(rememberNavController(), "german-1")
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewUserSettingsScreenDark() {
+    MaterialTheme {
+        UserSettingsScreen(rememberNavController(), "german-1")
     }
 }

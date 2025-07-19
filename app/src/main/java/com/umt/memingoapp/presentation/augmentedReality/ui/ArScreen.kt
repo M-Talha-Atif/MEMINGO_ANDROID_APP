@@ -3,9 +3,7 @@ package com.umt.memingoapp.presentation.augmentedReality.ui
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
@@ -23,19 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.umt.memingoapp.presentation.augmentedReality.components.ARLearningTopBar
-import com.umt.memingoapp.presentation.augmentedReality.components.ExampleSentencesList
-import com.umt.memingoapp.presentation.augmentedReality.components.FactList
-import com.umt.memingoapp.presentation.augmentedReality.components.RelatedWordsCard
-import com.umt.memingoapp.presentation.augmentedReality.components.TabShifterBar
-import com.umt.memingoapp.presentation.augmentedReality.components.TabType
-import com.umt.memingoapp.presentation.augmentedReality.components.UsageTipsList
-import com.umt.memingoapp.presentation.augmentedReality.components.WordLearningCard
+import com.umt.memingoapp.presentation.augmentedReality.components.*
 import com.umt.memingoapp.presentation.augmentedReality.viewmodel.ARLearningViewModelFactory
-import com.umt.memingoapp.domain.model.uiModels.ExampleSentence
-import com.umt.memingoapp.domain.model.uiModels.FactItem
-import com.umt.memingoapp.domain.model.uiModels.UsageTip
-import com.umt.memingoapp.domain.model.uiModels.WordLearningContent
 import com.umt.memingoapp.presentation.augmentedReality.viewmodel.ARLearningUiState
 import com.umt.memingoapp.presentation.augmentedReality.viewmodel.ARLearningViewModel
 import com.umt.memingoapp.presentation.shared_components.LoadingAnimation
@@ -153,53 +140,12 @@ fun ARLearningScreen(
 }
 
 
-@Composable
-private fun OverviewTab(content: WordLearningContent) {
-    Column(
-        modifier = Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 16.dp)
-    ) {
-        WordLearningCard(
-            wordName = content.word,
-            wordDifficulty = content.difficulty,
-            article = content.article ?: "",
-            translation = content.translation,
-            pronunciation = content.pronunciation,
-            category = content.category,
-            language = content.language,
-            sentencesCount = content.sentences.size,
-            tipsCount = content.tips.size,
-            factsCount = content.facts.size,
-            relatedCount = content.relatedWords.size,
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
-            onSoundClick = {},
-            onSaveLearningPack = {},
-            isSaved = false,
-            onCompleteLearningPackClick = {}
-        )
 
-        RelatedWordsCard(
-            relatedWords = content.relatedWords,
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
-        )
-    }
-}
 
-@Composable
-private fun SentencesTab(sentences: List<ExampleSentence>) {
-    ExampleSentencesList(sentences = sentences)
-}
 
-@Composable
-private fun TipsTab(tips: List<UsageTip>) {
-    UsageTipsList(tips = tips)
-}
 
-@Composable
-private fun FactsTab(facts: List<FactItem>) {
-    FactList(facts = facts)
-}
+
+
 
 @Composable
 private fun ExampleSentenceItem(

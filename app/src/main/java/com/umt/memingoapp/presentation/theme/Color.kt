@@ -1,4 +1,4 @@
-package com.umt.memingoapp.ui.theme
+package com.umt.memingoapp.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

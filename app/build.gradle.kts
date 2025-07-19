@@ -78,6 +78,8 @@ dependencies {
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.17.0")
     implementation("com.google.accompanist:accompanist-permissions:0.19.0")
     implementation("com.google.accompanist:accompanist-permissions:0.24.3-alpha")
+    implementation("io.coil-kt:coil-compose:2.4.0") // For images
+
 
     // Hilt - make sure ALL versions match!
     implementation("com.google.dagger:hilt-android:2.48")
@@ -87,6 +89,7 @@ dependencies {
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
     kaptAndroidTest("com.google.dagger:hilt-compiler:2.48")
 
+    implementation("com.valentinilk.shimmer:compose-shimmer:1.0.5") // shimmer view
 
     //serializaiton
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")

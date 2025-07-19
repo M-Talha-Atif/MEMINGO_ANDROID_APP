@@ -1,4 +1,4 @@
-package com.umt.memingoapp.ui.theme
+package com.umt.memingoapp.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -12,29 +12,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.umt.memingoapp.presentation.shared_components.AppTypography
 
-// Update your theme file (ui.theme/Theme.kt)
+// Light Color Scheme
 private val LightColorScheme = lightColorScheme(
     primary = LogoColor,
     secondary = LogoColor.copy(alpha = 0.8f),
     tertiary = LogoColor.copy(alpha = 0.6f),
-    background = Color.White,
+    background = Color(0xFFF5F5F5),
     surface = Color.White,
     onPrimary = Color.White,
     onSecondary = Color.White,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
+    onBackground = Color(0xFF333333),
+    onSurface = Color(0xFF333333),
+    surfaceVariant = Color(0xFFEEEEEE),
+    onSurfaceVariant = Color(0xFF666666),
+    outline = Color(0xFFDDDDDD),
+    outlineVariant = LogoColor.copy(alpha = 0.5f)
 )
 
+// Dark Color Scheme
 private val DarkColorScheme = darkColorScheme(
     primary = LogoColor,
     secondary = LogoColor.copy(alpha = 0.8f),
     tertiary = LogoColor.copy(alpha = 0.6f),
-    background = Color.Black,
-    surface = Color(0xFF121212),
+    background = Color(0xFF1E1E1E),
+    surface = Color(0xFF1E1E1E),
     onPrimary = Color.White,
     onSecondary = Color.White,
-    onBackground = Color.White,
-    onSurface = Color.White,
+    onBackground = Color(0xFFE0E0E0),
+    onSurface = Color(0xFFE0E0E0),
+    surfaceVariant = Color(0xFF2D2D2D),
+    onSurfaceVariant = Color(0xFFA0A0A0),
+    outline = Color(0xFF444444),
+    outlineVariant = LogoColor.copy(alpha = 0.5f)
 )
 
 @Composable
@@ -54,7 +63,7 @@ fun MemingoAppTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = AppTypography, // Use your custom typography
+        typography = AppTypography,
         content = content
     )
 }

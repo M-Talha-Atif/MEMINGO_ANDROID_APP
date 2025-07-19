@@ -20,23 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import com.umt.memingoapp.ui.theme.LogoColor
-import com.umt.memingoapp.ui.theme.TextFieldBackColor
-
-
-
-val LogoColor =  LogoColor         // replace with your brand's primary color
-val TextFieldBackColor = Color(0xFFF2F2F2)    // background of text fields
-val TextColor = Color.Black                  // or white depending on your theme
-val PlaceholderColor = Color.Gray            // or LogoColor.copy(alpha = 0.6f)
-val LabelColor = LogoColor                   // or whatever matches your style
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,23 +41,22 @@ fun PhoneField(
     TextField(
         value = value,
         onValueChange = {
-            // Allow only numbers and optional "+" for international numbers
             if (it.all { char -> char.isDigit() || char == '+' }) {
                 onChange(it)
             }
         },
         modifier = modifier,
         colors = TextFieldDefaults.textFieldColors(
-            containerColor = TextFieldBackColor,
-            cursorColor = LogoColor,
-            focusedLabelColor = LabelColor,
-            unfocusedLabelColor = LabelColor.copy(alpha = 0.8f),
-            focusedIndicatorColor = LogoColor,
-            unfocusedIndicatorColor = LogoColor.copy(alpha = 0.5f),
-            disabledIndicatorColor = LogoColor.copy(alpha = 0.3f),
-            errorIndicatorColor = Color.Red,
-            errorLabelColor = Color.Red,
-            errorCursorColor = Color.Red
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+            disabledIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+            errorIndicatorColor = MaterialTheme.colorScheme.error,
+            errorLabelColor = MaterialTheme.colorScheme.error,
+            errorCursorColor = MaterialTheme.colorScheme.error
         ),
         label = { Text(label) },
         leadingIcon = startIcon,
@@ -83,7 +70,6 @@ fun PhoneField(
         visualTransformation = VisualTransformation.None
     )
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,16 +88,16 @@ fun SimpleField(
         onValueChange = onChange,
         modifier = modifier,
         colors = TextFieldDefaults.textFieldColors(
-            containerColor = TextFieldBackColor,
-            cursorColor = LogoColor,
-            focusedLabelColor = LabelColor,
-            unfocusedLabelColor = LabelColor.copy(alpha = 0.8f),
-            focusedIndicatorColor = LogoColor,
-            unfocusedIndicatorColor = LogoColor.copy(alpha = 0.5f),
-            disabledIndicatorColor = LogoColor.copy(alpha = 0.3f),
-            errorIndicatorColor = Color.Red,
-            errorLabelColor = Color.Red,
-            errorCursorColor = Color.Red
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+            disabledIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+            errorIndicatorColor = MaterialTheme.colorScheme.error,
+            errorLabelColor = MaterialTheme.colorScheme.error,
+            errorCursorColor = MaterialTheme.colorScheme.error
         ),
         label = { Text(label) },
         leadingIcon = startIcon,
@@ -124,7 +110,6 @@ fun SimpleField(
         visualTransformation = VisualTransformation.None
     )
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -142,7 +127,7 @@ fun PasswordField(
         Icon(
             imageVector = Icons.Default.Lock,
             contentDescription = null,
-            tint = LogoColor
+            tint = MaterialTheme.colorScheme.primary
         )
     }
 
@@ -151,7 +136,7 @@ fun PasswordField(
             Icon(
                 imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                 contentDescription = null,
-                tint = LogoColor
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -163,16 +148,16 @@ fun PasswordField(
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
         colors = TextFieldDefaults.textFieldColors(
-            containerColor = TextFieldBackColor,
-            cursorColor = LogoColor,
-            focusedLabelColor = LabelColor,
-            unfocusedLabelColor = LabelColor.copy(alpha = 0.8f),
-            focusedIndicatorColor = LogoColor,
-            unfocusedIndicatorColor = LogoColor.copy(alpha = 0.5f),
-            disabledIndicatorColor = LogoColor.copy(alpha = 0.3f),
-            errorIndicatorColor = Color.Red,
-            errorLabelColor = Color.Red,
-            errorCursorColor = Color.Red
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+            disabledIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+            errorIndicatorColor = MaterialTheme.colorScheme.error,
+            errorLabelColor = MaterialTheme.colorScheme.error,
+            errorCursorColor = MaterialTheme.colorScheme.error
         ),
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done,
@@ -185,4 +170,3 @@ fun PasswordField(
         visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
     )
 }
-

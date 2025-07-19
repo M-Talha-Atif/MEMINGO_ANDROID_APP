@@ -13,19 +13,19 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="TabShifterBarPreview">
+      <SelectionState runConfigName="LeaderboardScreenPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ARLearningScreenPreview">
+      <SelectionState runConfigName="PreviewDashboardScreen">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MatchPairsContentPreview">
+      <SelectionState runConfigName="HeaderBarPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MatchPairsContentPreview (1)">
+      <SelectionState runConfigName="HeaderBarPreviewDark">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MatchPairsContentPreview (2)">
+      <SelectionState runConfigName="LearningModeCardPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

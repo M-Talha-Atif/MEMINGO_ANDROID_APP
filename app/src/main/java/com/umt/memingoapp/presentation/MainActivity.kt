@@ -1,4 +1,4 @@
-package com.umt.memingoapp
+package com.umt.memingoapp.presentation
 
 import android.content.Context
 import android.os.Bundle
@@ -8,15 +8,18 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.umt.memingoapp.ui.theme.MemingoAppTheme
+import com.umt.memingoapp.presentation.theme.MemingoAppTheme
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.scale
@@ -27,6 +30,7 @@ import kotlinx.coroutines.delay
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.umt.memingoapp.R
 import com.umt.memingoapp.presentation.navigation.routes.Screen
 import dagger.hilt.android.AndroidEntryPoint
 import org.json.JSONObject
@@ -37,15 +41,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MemingoAppTheme {
-                val navController = rememberNavController()
+            val navController = rememberNavController()
+            MemingoAppTheme(
+                darkTheme = isSystemInDarkTheme(),
+                dynamicColor = false // This will ensure your LogoColor is used
+            ) {
                 MyNavHost(navController = navController)
-
             }
         }
     }
 }
-
 
 
 fun isTokenExpired(token: String): Boolean {
@@ -68,16 +73,16 @@ fun isTokenExpired(token: String): Boolean {
 
 @Composable
 fun SplashScreen(onSplashEnd: () -> Unit, navController: NavHostController) {
-
     val context = LocalContext.current
     val sharedPrefs = context.getSharedPreferences("AuthPrefs", Context.MODE_PRIVATE)
     val token = sharedPrefs.getString("token", null)
     val isFirstTime = sharedPrefs.getBoolean("is_first_time", true)
 
     var isVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         isVisible = true
-        delay(2000) // Delay to show splash screen for 2 seconds
+        delay(2000)
 
         val isTokenValid = !token.isNullOrEmpty() && !isTokenExpired(token)
 
@@ -91,26 +96,28 @@ fun SplashScreen(onSplashEnd: () -> Unit, navController: NavHostController) {
         }
 
         navController.navigate(nextRoute) {
-            popUpTo(0) { inclusive = true } // Prevent going back to splash
+            popUpTo(0) { inclusive = true }
             launchSingleTop = true
         }
 
         onSplashEnd()
     }
 
-    // Define scale animation for zoom effect
     val scale by animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0.8f, // Start slightly smaller and grow to full size
-        animationSpec = tween(durationMillis = 1000, easing = FastOutLinearInEasing)
-
+        targetValue = if (isVisible) 1f else 0.8f,
+        animationSpec = tween(durationMillis = 1000)
     )
 
-    // Center icon with fade-in and scale effect
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+     Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background) // use theme background
+    ) {
         AnimatedVisibility(
             visible = isVisible,
             enter = fadeIn(initialAlpha = 0.5f) + scaleIn(initialScale = 0.6f),
-            exit =  fadeOut( animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing))
+            exit = fadeOut(animationSpec = tween(durationMillis = 1000))
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_1),
@@ -121,5 +128,5 @@ fun SplashScreen(onSplashEnd: () -> Unit, navController: NavHostController) {
             )
         }
     }
-
 }
+

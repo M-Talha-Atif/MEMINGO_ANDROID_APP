@@ -6,14 +6,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.umt.memingoapp.presentation.objectDetection.ui.DetectionScreen
-import com.umt.memingoapp.presentation.dashboard.ui.CourseHomeScreen
+import com.umt.memingoapp.presentation.dashboard.ui.screen.CourseHomeScreen
 import com.umt.memingoapp.presentation.course_selection.ui.CourseSelectionScreen
 import com.umt.memingoapp.presentation.splash.ui.GetStartedScreen
-import com.umt.memingoapp.SplashScreen
+import com.umt.memingoapp.presentation.SplashScreen
 import com.umt.memingoapp.presentation.auth.ui.LoginForm
 import com.umt.memingoapp.presentation.auth.ui.OtpScreen
 import com.umt.memingoapp.presentation.auth.ui.SignUpForm
 import com.umt.memingoapp.presentation.augmentedReality.ui.ARLearningScreen
+import com.umt.memingoapp.presentation.chatScreen.ui.ChatScreen
+import com.umt.memingoapp.presentation.leaderboard.ui.screen.LeaderboardScreen
 import com.umt.memingoapp.presentation.lesson.ui.LessonScreenWithViewModel
 import com.umt.memingoapp.presentation.navigation.routes.Screen
 
@@ -70,18 +72,37 @@ fun MyNavHost(navController: NavHostController) {
             )
         }
 
+        composable(Screen.Leaderboard.route){
+            LeaderboardScreen(navController)
+        }
+
+        composable(Screen.Chat.route){
+            ChatScreen(navController)
+        }
+
         composable("${Screen.VocabularyScreen.route}/{course_id}/{courseName}/{word}") { backStackEntry ->
-            val courseId = backStackEntry.arguments?.getString("courseName") ?: ""
+            val courseId = backStackEntry.arguments?.getString("course_id") ?: ""
             val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
             val word = backStackEntry.arguments?.getString("word") ?: ""
+
             ARLearningScreen(
                 moduleTitle =  "Learn about $word",
                 courseId = courseId,
                 language = courseName,
                 wordName = word,
                 navController = navController,
-                onClose = {},
-                onScan = {}
+                onClose = {
+                    navController.navigateAndClearStack(
+                        destination = "${Screen.Dashboard.route}/$courseId",
+                        clearUpTo = "${Screen.VocabularyScreen.route}/$courseId/$courseName/$word"
+                    )
+                },
+                onScan = {
+                    navController.navigateAndClearStack(
+                        destination = "${Screen.ARScreen.route}/$courseName/$courseId",
+                        clearUpTo = "${Screen.VocabularyScreen.route}/$courseId/$courseName/$word"
+                    )
+                }
             )
         }
 
@@ -98,4 +119,6 @@ fun MyNavHost(navController: NavHostController) {
     }
 
     }
+
+
 

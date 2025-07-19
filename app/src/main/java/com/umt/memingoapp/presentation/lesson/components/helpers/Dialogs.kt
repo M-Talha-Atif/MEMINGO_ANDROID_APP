@@ -7,7 +7,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import com.umt.memingoapp.ui.theme.LogoColor
+import com.umt.memingoapp.presentation.theme.LogoColor
 import com.umt.memingoapp.presentation.shared_components.AppTypography
 import kotlinx.coroutines.flow.StateFlow
 

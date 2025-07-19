@@ -9,15 +9,22 @@ import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.text.googlefonts.GoogleFont.Provider
 import androidx.compose.ui.unit.sp
 import com.umt.memingoapp.R
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 
-// ✅ 1. Define Google Font Provider
+// Define Google Font Provider
 val googleFontProvider = Provider(
     providerAuthority = "com.google.android.gms.fonts",
     providerPackage = "com.google.android.gms",
     certificates = R.array.com_google_android_gms_fonts_certs
 )
 
-// ✅ 2. Load Noto Sans with Provider
+// Load Noto Sans with Provider
 val notoSansFont = FontFamily(
     Font(
         googleFont = GoogleFont("Noto Sans"),
@@ -46,7 +53,7 @@ val notoSansFont = FontFamily(
     )
 )
 
-// ✅ 3. Define typography using Noto Sans
+// Define typography using Noto Sans
 val AppTypography = Typography(
     displayLarge = TextStyle( // H1
         fontFamily = notoSansFont,
@@ -107,3 +114,91 @@ val AppTypography = Typography(
         fontWeight = FontWeight.Light
     )
 )
+
+
+
+@Composable
+fun FontTextFieldPreview(
+    label: String,
+    textStyle: androidx.compose.ui.text.TextStyle,
+    modifier: Modifier = Modifier
+) {
+    var value by remember { mutableStateOf(TextFieldValue("")) }
+    OutlinedTextField(
+        value = value,
+        onValueChange = { value = it },
+        label = { Text(label, style = textStyle) },
+        textStyle = textStyle,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun AllTextFieldPreviews(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text("TextFields with Different Font Styles", style = AppTypography.displayMedium)
+        FontTextFieldPreview(
+            label = "Display Large (H1)",
+            textStyle = AppTypography.displayLarge
+        )
+        FontTextFieldPreview(
+            label = "Display Medium (H2)",
+            textStyle = AppTypography.displayMedium
+        )
+        FontTextFieldPreview(
+            label = "Display Small (H3)",
+            textStyle = AppTypography.displaySmall
+        )
+        FontTextFieldPreview(
+            label = "Title Large",
+            textStyle = AppTypography.titleLarge
+        )
+        FontTextFieldPreview(
+            label = "Title Medium",
+            textStyle = AppTypography.titleMedium
+        )
+        FontTextFieldPreview(
+            label = "Title Small",
+            textStyle = AppTypography.titleSmall
+        )
+        FontTextFieldPreview(
+            label = "Body Large",
+            textStyle = AppTypography.bodyLarge
+        )
+        FontTextFieldPreview(
+            label = "Body Medium",
+            textStyle = AppTypography.bodyMedium
+        )
+        FontTextFieldPreview(
+            label = "Body Small",
+            textStyle = AppTypography.bodySmall
+        )
+        FontTextFieldPreview(
+            label = "Label Large (Button)",
+            textStyle = AppTypography.labelLarge
+        )
+        FontTextFieldPreview(
+            label = "Label Small (Caption)",
+            textStyle = AppTypography.labelSmall
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAllTextFieldPreviews() {
+    MaterialTheme(
+        typography = AppTypography
+    ) {
+        Surface {
+            AllTextFieldPreviews()
+        }
+    }
+}
