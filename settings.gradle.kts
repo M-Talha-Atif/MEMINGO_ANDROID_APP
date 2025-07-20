@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io") }  // Added missing closing parenthesis
+        maven { url = uri("https://jitpack.io") }
     }
 }
 

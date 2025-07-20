@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.umt.memingoapp.presentation.leaderboard.state.TimeFilterType
 import com.umt.memingoapp.presentation.theme.LogoColor
-
 @Composable
 fun TimeFilterSelector(
     selected: TimeFilterType,
@@ -34,24 +33,27 @@ fun TimeFilterSelector(
         modifier = modifier
             .height(48.dp)
             .clip(RoundedCornerShape(24.dp))
+            // THEME-AWARE BACKGROUND
             .background(
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.10f),
-                        Color.White.copy(alpha = 0.05f)
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.88f)
                     )
                 )
             )
+            // THEME-AWARE BORDER
             .border(
                 width = 1.dp,
-                color = LogoColor,
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(24.dp)
             )
+            // THEME-AWARE SHADOW
             .shadow(
                 elevation = 10.dp,
                 shape = RoundedCornerShape(24.dp),
-                ambientColor = Color.White.copy(alpha = 0.08f),
-                spotColor = Color.Black.copy(alpha = 0.2f)
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
             )
     ) {
         val tabWidth = maxWidth / filters.size
@@ -68,15 +70,20 @@ fun TimeFilterSelector(
                 .width(tabWidth - 8.dp)
                 .height(40.dp)
                 .clip(RoundedCornerShape(20.dp))
+                // THEME-AWARE INDICATOR BACKGROUND
                 .background(
                     brush = Brush.horizontalGradient(
-                        listOf(LogoColor.copy(alpha = 0.8f), LogoColor)
+                        listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                            MaterialTheme.colorScheme.primary
+                        )
                     )
                 )
+                // THEME-AWARE INDICATOR SHADOW
                 .shadow(
                     elevation = 4.dp,
                     shape = RoundedCornerShape(20.dp),
-                    spotColor = LogoColor.copy(alpha = 0.3f)
+                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                 )
         )
 
@@ -99,7 +106,7 @@ fun TimeFilterSelector(
                 ) {
                     Text(
                         text = filter.label,
-                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                         ),

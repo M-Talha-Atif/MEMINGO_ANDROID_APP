@@ -52,6 +52,7 @@ fun LeaderboardList(users: List<LeaderboardUser>, highlightId: String?) {
         }
     }
 }
+
 @Composable
 fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
     val animatedElevation by animateDpAsState(
@@ -60,9 +61,11 @@ fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
     )
 
     val animatedColor by animateColorAsState(
-        targetValue = if (highlight) LogoColor else MaterialTheme.colorScheme.surface,
+        targetValue = if (highlight) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
         animationSpec = tween(durationMillis = 300)
     )
+
+
 
     Card(
         modifier = Modifier
@@ -78,7 +81,7 @@ fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
         shape = RoundedCornerShape(CardCornerRadius),
         colors = CardDefaults.cardColors(
             containerColor = animatedColor,
-            contentColor = if (highlight) Color.White else MaterialTheme.colorScheme.onSurface
+            contentColor = if (highlight) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
         )
     ) {
         Row(
@@ -93,7 +96,7 @@ fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
                 modifier = Modifier
                     .size(36.dp)
                     .background(
-                        color = if (highlight) Color.White.copy(alpha = 0.2f) else LogoColor.copy(alpha = 0.1f),
+                        color = if (highlight) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
                         shape = CircleShape
                     )
             ) {
@@ -118,7 +121,7 @@ fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
                         .clip(CircleShape)
                         .border(
                             width = 2.dp,
-                            color = if (highlight) Color.White else LogoColor,
+                            color = if (highlight) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary,
                             shape = CircleShape
                         )
                 )
@@ -139,7 +142,8 @@ fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
                 Text(
                     text = "${user.total_points} pts",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (highlight) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = if (highlight) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
+                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
             }
 
@@ -159,7 +163,8 @@ fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
                                 .background(
-                                    color = if (highlight) Color.White.copy(alpha = 0.2f) else Color.Red.copy(alpha = 0.1f),
+                                    color = if (highlight) MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
+                                    else MaterialTheme.colorScheme.error.copy(alpha = 0.12f),
                                     shape = RoundedCornerShape(8.dp)
                                 )
                                 .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -172,12 +177,12 @@ fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
                                     painter = painterResource(R.drawable.fire),
                                     contentDescription = "Streak",
                                     modifier = Modifier.size(16.dp),
-                                    tint = if (highlight) Color.White else Color.Red
+                                    tint = if (highlight) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.error
                                 )
                                 Text(
                                     text = "${user.best_streak}",
                                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                    color = if (highlight) Color.White else Color.Red
+                                    color = if (highlight) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.error
                                 )
                             }
                         }
@@ -189,7 +194,8 @@ fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .background(
-                            color = if (highlight) Color.White.copy(alpha = 0.2f) else LogoColor.copy(alpha = 0.1f),
+                            color = if (highlight) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                            else MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
                             shape = RoundedCornerShape(8.dp)
                         )
                         .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -202,12 +208,12 @@ fun LeaderboardCard(user: LeaderboardUser, highlight: Boolean) {
                             painter = painterResource(R.drawable.ic_course),
                             contentDescription = "Courses",
                             modifier = Modifier.size(16.dp),
-                            tint = if (highlight) Color.White else LogoColor
+                            tint = if (highlight) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = "${user.active_courses}",
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = if (highlight) Color.White else LogoColor
+                            color = if (highlight) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
                         )
                     }
                 }

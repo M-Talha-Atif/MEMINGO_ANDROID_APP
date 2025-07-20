@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.umt.memingoapp.presentation.leaderboard.state.LeaderboardUiState
@@ -32,6 +34,7 @@ import com.umt.memingoapp.presentation.leaderboard.ui.components.LeaderboardList
 import com.umt.memingoapp.presentation.leaderboard.ui.components.TimeFilterSelector
 import com.umt.memingoapp.presentation.leaderboard.ui.components.TopThreeLeaderboard
 import com.umt.memingoapp.presentation.leaderboard.viewmodel.LeaderboardViewModel
+import com.umt.memingoapp.presentation.shared_components.BottomNavigationBar
 import com.umt.memingoapp.presentation.theme.LogoColor
 
 
@@ -47,51 +50,77 @@ fun LeaderboardScreen(
         viewModel.loadLeaderboard(selectedFilter.toApiParam())
     }
 
-    when (state) {
-        is LeaderboardUiState.Loading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = LogoColor)
-            }
-        }
+    // --- Scaffold for nav bar ---
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController, "") }
+    ) { padding ->
 
-        is LeaderboardUiState.Success -> {
-            val data = (state as LeaderboardUiState.Success).data
-            val topThree = data.leaderboard.take(3)
-            val rest = data.leaderboard.drop(3)
+        // Use padding from Scaffold
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            when (state) {
+                is LeaderboardUiState.Loading -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = LogoColor)
+                    }
+                }
 
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .background(Brush.verticalGradient(colors = listOf(Color.White, Color(0xFFF6F9FC))))
-                    .padding(16.dp)
-            ) {
-                Text(
-                    "🏆 Leaderboard",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = LogoColor,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                is LeaderboardUiState.Success -> {
+                    val data = (state as LeaderboardUiState.Success).data
+                    val topThree = data.leaderboard.take(3)
+                    val rest = data.leaderboard.drop(3)
 
-                // ⏱️ Time filter selector
-                TimeFilterSelector(
-                    selected = selectedFilter,
-                    onSelect = { selectedFilter = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp)
-                )
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.background,
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                )
+                            )
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            "🏆 Leaderboard",
+                            color = LogoColor,
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            fontSize = 24.sp
+                        )
+                        )
 
-                TopThreeLeaderboard(users = topThree)
+                        // ⏱️ Time filter selector
+                        TimeFilterSelector(
+                            selected = selectedFilter,
+                            onSelect = { selectedFilter = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 24.dp)
+                        )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                        TopThreeLeaderboard(users = topThree)
 
-                LeaderboardList(users = rest, highlightId = data.current_user_rank?.user_id)
-            }
-        }
+                        Spacer(modifier = Modifier.height(24.dp))
 
-        is LeaderboardUiState.Error -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Oops: ${(state as LeaderboardUiState.Error).message}", color = Color.Red)
+                        LeaderboardList(users = rest, highlightId = data.current_user_rank?.user_id)
+                    }
+                }
+
+                is LeaderboardUiState.Error -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            "Oops: ${(state as LeaderboardUiState.Error).message}",
+                            color = Color.Red
+                        )
+                    }
+                }
             }
         }
     }

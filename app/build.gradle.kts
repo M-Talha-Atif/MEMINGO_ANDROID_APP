@@ -94,6 +94,8 @@ dependencies {
     //serializaiton
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
+    implementation("com.canopas.compose-animated-navigationbar:bottombar:1.0.0")
+
 
 
     implementation(libs.androidx.appcompat)

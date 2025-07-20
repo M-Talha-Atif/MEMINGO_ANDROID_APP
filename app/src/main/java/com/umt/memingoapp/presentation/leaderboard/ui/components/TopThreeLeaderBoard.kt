@@ -46,7 +46,6 @@ fun TopThreeLeaderboard(users: List<LeaderboardUser>) {
         }
     }
 }
-
 @Composable
 fun TopThreeCard(user: LeaderboardUser, rank: Int) {
     val size = when (rank) {
@@ -58,7 +57,19 @@ fun TopThreeCard(user: LeaderboardUser, rank: Int) {
         1 -> Color(0xFFFFD700) // Gold
         2 -> Color(0xFFC0C0C0) // Silver
         3 -> Color(0xFFCD7F32) // Bronze
-        else -> LogoColor
+        else -> MaterialTheme.colorScheme.primary
+    }
+
+    val secondaryMedalColor = when (rank) {
+        1 -> Color(0xFFFFF8DC) // Light gold-ish
+        2 -> Color(0xFFF8F8FF) // Light silver
+        3 -> Color(0xFFF5E6DA) // Light bronze
+        else -> MaterialTheme.colorScheme.surface
+    }
+
+    val textColor = when (rank) {
+        1, 2, 3 -> MaterialTheme.colorScheme.onPrimary
+        else -> MaterialTheme.colorScheme.onSurface
     }
 
     Column(
@@ -69,7 +80,12 @@ fun TopThreeCard(user: LeaderboardUser, rank: Int) {
             Modifier
                 .size(size)
                 .clip(CircleShape)
-                .background(Brush.radialGradient(listOf(medalColor, Color.White)))
+                .background(
+                    Brush.radialGradient(
+                        0.0f to medalColor,
+                        1.0f to secondaryMedalColor
+                    )
+                )
                 .border(3.dp, medalColor, CircleShape),
             contentAlignment = Alignment.Center
         ) {
@@ -83,7 +99,14 @@ fun TopThreeCard(user: LeaderboardUser, rank: Int) {
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(user.name, style = MaterialTheme.typography.bodyLarge, color = Color.DarkGray)
-        Text("${user.total_points} pts", style = MaterialTheme.typography.bodySmall)
+        Text(
+            user.name,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1
+        )
+        Text(
+            "${user.total_points} pts",
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
