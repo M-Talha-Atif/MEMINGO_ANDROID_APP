@@ -4,11 +4,14 @@ import android.content.Context
 import com.google.gson.GsonBuilder
 import com.umt.memingoapp.data.repository.CourseRepositoryImpl
 import com.umt.memingoapp.data.repository.LeaderboardRepositoryImpl
+import com.umt.memingoapp.data.repository.ProfileRepositoryImpl
+import com.umt.memingoapp.data.source.remote.service.AuthenticationService
 import com.umt.memingoapp.data.source.remote.service.LeaderboardService
 import com.umt.memingoapp.domain.model.response.Activity
 import com.umt.memingoapp.domain.model.response.ActivityDeserializer
 import com.umt.memingoapp.domain.repository.CourseRepository
 import com.umt.memingoapp.domain.repository.LeaderboardRepository
+import com.umt.memingoapp.domain.repository.ProfileRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -73,6 +76,19 @@ object AppModule {
             .client(client)
             .build()
     }
+
+    @Provides
+    @Singleton
+    fun provideAuthService(retrofit: Retrofit): AuthenticationService {
+        return retrofit.create(AuthenticationService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProfileRepository(api: AuthenticationService): ProfileRepository {
+        return ProfileRepositoryImpl(api)
+    }
+
 
     @Provides
     @Singleton

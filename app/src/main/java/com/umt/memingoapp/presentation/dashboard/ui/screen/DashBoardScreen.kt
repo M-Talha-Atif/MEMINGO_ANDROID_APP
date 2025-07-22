@@ -1,13 +1,12 @@
 package com.umt.memingoapp.presentation.dashboard.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Leaderboard
-import androidx.compose.material.icons.filled.Person
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -18,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.umt.memingoapp.R
 import com.umt.memingoapp.domain.model.response.SingleCourseResponse
@@ -29,8 +27,11 @@ import com.umt.memingoapp.presentation.course_selection.viewmodel.CourseViewMode
 import com.umt.memingoapp.presentation.course_selection.viewmodel.ResultType
 import com.umt.memingoapp.presentation.dashboard.ui.components.*
 import com.umt.memingoapp.presentation.dashboard.ui.components.shimmer.*
+import com.umt.memingoapp.presentation.profile.viewmodel.ProfileViewModel
 import com.umt.memingoapp.presentation.shared_components.BottomNavigationBar
 import kotlinx.coroutines.flow.collectLatest
+import java.time.LocalTime
+import java.time.ZoneId
 
 @Preview(showBackground = true)
 @Composable
@@ -43,10 +44,24 @@ fun PreviewDashboardScreen() {
 fun CourseHomeScreen(
     navController: NavController,
     courseId: String,
-    viewModel: CourseViewModel = hiltViewModel()
+    viewModel: CourseViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val courseState = remember { mutableStateOf<SingleCourseResponse?>(null) }
     val lessonsState = remember { mutableStateListOf<Lesson>() }
+
+    val userProfile = profileViewModel.userProfile.collectAsState().value
+    val dateText = remember { getCurrentFormattedDate() }
+
+    val greetingText = remember(userProfile) {
+        userProfile?.let {
+            "${getGreeting()}, ${it.name}"
+        } ?: "Hello!"
+    }
+
+    LaunchedEffect(Unit) {
+        profileViewModel.fetchUserProfile()
+    }
 
     LaunchedEffect(Unit) {
         viewModel.getCourseDetails(courseId).collectLatest { result ->
@@ -86,18 +101,20 @@ fun CourseHomeScreen(
         ) {
             item {
                 Spacer(modifier = Modifier.height(16.dp))
-                HeaderBar(
-                    dateText = "Monday, 15 May",
-                    greetingText = "Good Morning, Alex!",
-                    avatarImage = painterResource(R.drawable.p1),
-                    languageIcon = painterResource(R.drawable.german),
-                    notificationIcon = painterResource(R.drawable.ic_notification),
-                    notificationCount = 3,
-                    onLanguageClick = {
-                        navController.navigate(Screen.HomeScreen.route)
-                    },
-                    onNotificationClick = {}
-                )
+                if (userProfile != null) {
+                    HeaderBar(
+                        dateText = dateText,
+                        greetingText = greetingText,
+                        avatarImage = painterResource(R.drawable.p1),
+                        languageIcon = painterResource(R.drawable.german),
+                        notificationIcon = painterResource(R.drawable.ic_notification),
+                        notificationCount = 3,
+                        onLanguageClick = {
+                            navController.navigate(Screen.HomeScreen.route)
+                        },
+                        onNotificationClick = {}
+                    )
+                }
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
@@ -186,67 +203,24 @@ fun CourseHomeScreen(
 }
 
 
+@SuppressLint("NewApi")
+fun getCurrentFormattedDate(): String {
+    val currentDate = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM", Locale.getDefault())
+    return currentDate.format(formatter)
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-//val ActiveColor = Color.White
-//val InactiveColor = Color.LightGray
-//
-//@Composable
-//fun BottomNavigationBar(navController: NavController, courseId: String) {
-//    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
-//
-//    NavigationBar(
-//        containerColor = LogoColor
-//    ) {
-//        BottomNavItem( route = "${Screen.Dashboard.route}/$courseId", Icons.Default.Home, "Home", navController, currentDestination)
-//        BottomNavItem(route = "${Screen.Profile.route}/$courseId", Icons.Default.Person, "Profile", navController, currentDestination)
-//        BottomNavItem("chat", Icons.Default.Chat, "Chat", navController, currentDestination)
-//        BottomNavItem("leaderboard", Icons.Default.Leaderboard, "Leaderboard", navController, currentDestination)
-//    }
-//}
-//
-//@Composable
-//private fun RowScope.BottomNavItem(
-//    route: String,
-//    icon: ImageVector,
-//    label: String,
-//    navController: NavController,
-//    currentRoute: String?
-//) {
-//    val isSelected = currentRoute == route
-//    NavigationBarItem(
-//        icon = {
-//            Icon(
-//                imageVector = icon,
-//                contentDescription = label,
-//                tint = if (isSelected) ActiveColor else InactiveColor
-//            )
-//        },
-//        label = {
-//            Text(
-//                text = label,
-//                color = if (isSelected) ActiveColor else InactiveColor
-//            )
-//        },
-//        selected = isSelected,
-//        onClick = {
-//            if (!isSelected) navController.navigate(route)
-//        },
-//        alwaysShowLabel = true
-//    )
-//}
-
+@SuppressLint("NewApi")
+fun getGreeting(): String {
+    val currentHour = LocalTime.now(ZoneId.systemDefault()).hour
+    return when (currentHour) {
+        in 5..11 -> "Good Morning"
+        in 12..16 -> "Good Afternoon"
+        in 17..20 -> "Good Evening"
+        else -> "Good Night"
+    }
+}
 
 
 // Data models

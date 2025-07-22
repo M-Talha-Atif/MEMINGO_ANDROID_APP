@@ -23,6 +23,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,14 +37,30 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.umt.memingoapp.R
+import com.umt.memingoapp.domain.model.response.UserProfileResponse
+import com.umt.memingoapp.presentation.profile.viewmodel.ProfileViewModel
 import com.umt.memingoapp.presentation.shared_components.BottomNavigationBar
 
 val LogoColor = Color(0xFF256470)
 
 
 
+
 @Composable
-fun UserSettingsScreen(navController: NavHostController, courseId: String) {
+fun UserSettingsScreen(
+    navController: NavHostController,
+    courseId: String,
+    profileViewModel: ProfileViewModel
+)
+{
+
+    val userProfile = profileViewModel.userProfile.collectAsState().value
+
+    LaunchedEffect(Unit) {
+        profileViewModel.fetchUserProfile()
+    }
+
+
     Scaffold(
         bottomBar = {
             BottomNavigationBar(navController = navController, courseId = courseId)
@@ -56,7 +74,7 @@ fun UserSettingsScreen(navController: NavHostController, courseId: String) {
                 .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            ProfileHeader()
+            ProfileHeader(userProfile = userProfile)
 
             SettingsSection(
                 title = "ACCOUNT",
@@ -102,9 +120,8 @@ fun UserSettingsScreen(navController: NavHostController, courseId: String) {
         }
     }
 }
-
 @Composable
-fun ProfileHeader() {
+fun ProfileHeader(userProfile: UserProfileResponse?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,14 +139,14 @@ fun ProfileHeader() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Minaam Ahmad",
+            text = userProfile?.name ?: "Loading...",
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold
         )
 
         Text(
-            text = "minaamahmad623@gmail.com",
+            text = userProfile?.email ?: "",
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             fontSize = 14.sp
         )
@@ -137,6 +154,7 @@ fun ProfileHeader() {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
+
 
 @Composable
 fun SettingsSection(title: String, items: List<SettingsItem>) {
@@ -223,19 +241,19 @@ data class SettingsItem(
     val title: String,
     val description: String,
 )
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewUserSettingsScreenLight() {
-    MaterialTheme {
-        UserSettingsScreen(rememberNavController(), "german-1")
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PreviewUserSettingsScreenDark() {
-    MaterialTheme {
-        UserSettingsScreen(rememberNavController(), "german-1")
-    }
-}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewUserSettingsScreenLight() {
+//    MaterialTheme {
+//        UserSettingsScreen(rememberNavController(), "german-1")
+//    }
+//}
+//
+//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+//@Composable
+//fun PreviewUserSettingsScreenDark() {
+//    MaterialTheme {
+//        UserSettingsScreen(rememberNavController(), "german-1")
+//    }
+//}

@@ -4,7 +4,10 @@ import com.umt.memingoapp.domain.model.request.SignupRequest
 import com.umt.memingoapp.domain.model.request.VerifyOtpRequest
 import com.umt.memingoapp.domain.model.response.ApiResponse
 import com.umt.memingoapp.domain.model.response.LoginResponse
+import com.umt.memingoapp.domain.model.response.UserProfileResponse
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 
@@ -18,6 +21,11 @@ interface AuthenticationService {
 
     @POST("/auth/verify-otp")
     suspend fun verifyOtp(@Body verifyOtpRequest: VerifyOtpRequest): ApiResponse
+
+    @GET("/auth/user")
+    suspend fun getUserProfile(): UserProfileResponse
+
+
 
 
 }

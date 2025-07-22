@@ -60,8 +60,6 @@ class AuthViewModel(application : Application) : AndroidViewModel(application) {
     }
 
 
-
-
     fun onEmailChanged(newEmail: String) {
         _email.value = newEmail
     }

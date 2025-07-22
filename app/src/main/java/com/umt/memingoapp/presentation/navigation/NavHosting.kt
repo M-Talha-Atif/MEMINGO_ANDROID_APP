@@ -2,6 +2,7 @@ package com.umt.memingoapp.presentation.navigation
 
 import UserSettingsScreen
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +19,7 @@ import com.umt.memingoapp.presentation.chatScreen.ui.ChatScreen
 import com.umt.memingoapp.presentation.leaderboard.ui.screen.LeaderboardScreen
 import com.umt.memingoapp.presentation.lesson.ui.LessonScreenWithViewModel
 import com.umt.memingoapp.presentation.navigation.routes.Screen
+import com.umt.memingoapp.presentation.profile.viewmodel.ProfileViewModel
 
 @Composable
 fun MyNavHost(navController: NavHostController) {
@@ -45,7 +47,8 @@ fun MyNavHost(navController: NavHostController) {
 
         composable("${Screen.Profile.route}/{course_id}") { backStackEntry ->
             val courseId = backStackEntry.arguments?.getString("course_id") ?: ""
-            UserSettingsScreen(navController,courseId)
+            val profileViewModel: ProfileViewModel = hiltViewModel()
+            UserSettingsScreen(navController,courseId, profileViewModel = profileViewModel)
         }
 
 
