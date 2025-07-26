@@ -1,6 +1,7 @@
 package com.umt.memingoapp.data.source.remote.service
 import com.umt.memingoapp.domain.model.request.LoginRequest
 import com.umt.memingoapp.domain.model.request.SignupRequest
+import com.umt.memingoapp.domain.model.request.UpdateProfileRequest
 import com.umt.memingoapp.domain.model.request.VerifyOtpRequest
 import com.umt.memingoapp.domain.model.response.ApiResponse
 import com.umt.memingoapp.domain.model.response.LoginResponse
@@ -9,7 +10,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
-
+import retrofit2.http.PUT
 
 
 interface AuthenticationService {
@@ -24,6 +25,9 @@ interface AuthenticationService {
 
     @GET("/auth/user")
     suspend fun getUserProfile(): UserProfileResponse
+
+    @PUT("/auth/edit-profile")
+    suspend fun updateProfile(@Body updateProfileRequest: UpdateProfileRequest): UserProfileResponse
 
 
 

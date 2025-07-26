@@ -34,10 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.umt.memingoapp.R
 import com.umt.memingoapp.domain.model.response.UserProfileResponse
+import com.umt.memingoapp.presentation.navigation.routes.Screen
 import com.umt.memingoapp.presentation.profile.viewmodel.ProfileViewModel
 import com.umt.memingoapp.presentation.shared_components.BottomNavigationBar
 
@@ -48,7 +50,7 @@ val LogoColor = Color(0xFF256470)
 
 @Composable
 fun UserSettingsScreen(
-    navController: NavHostController,
+    navController: NavController,
     courseId: String,
     profileViewModel: ProfileViewModel
 )
@@ -94,7 +96,12 @@ fun UserSettingsScreen(
                         title = "Privacy & Security",
                         description = "Control your privacy settings"
                     )
-                )
+                ),
+                onItemClick = { item ->
+                    when (item.title) {
+                        "Edit Profile" -> navController.navigate(Screen.EditProfile.route)
+                    }
+                }
             )
 
             SettingsSection(
@@ -157,7 +164,7 @@ fun ProfileHeader(userProfile: UserProfileResponse?) {
 
 
 @Composable
-fun SettingsSection(title: String, items: List<SettingsItem>) {
+fun SettingsSection(title: String, items: List<SettingsItem>,   onItemClick: (SettingsItem) -> Unit = {} ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -181,7 +188,7 @@ fun SettingsSection(title: String, items: List<SettingsItem>) {
         ) {
             Column {
                 items.forEachIndexed { index, item ->
-                    SettingItemRow(item = item)
+                    SettingItemRow(item = item,      onClick = { onItemClick(item) } )
                     if (index < items.lastIndex) {
                         Divider(
                             modifier = Modifier.padding(start = 16.dp),
@@ -196,11 +203,11 @@ fun SettingsSection(title: String, items: List<SettingsItem>) {
 }
 
 @Composable
-fun SettingItemRow(item: SettingsItem) {
+fun SettingItemRow(item: SettingsItem,  onClick: () -> Unit = {} ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* Handle click */ }
+            .clickable(onClick = onClick)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

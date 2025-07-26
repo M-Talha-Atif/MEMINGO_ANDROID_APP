@@ -34,3 +34,9 @@ data class UpdateProgressRequest(
     val score: Int? = null
 )
 
+
+data class UpdateProfileRequest(
+    val name: String,
+    val phone: String,
+    val learning_goal: String
+)

@@ -3,6 +3,7 @@ package com.umt.memingoapp.presentation.profile.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.umt.memingoapp.domain.model.request.UpdateProfileRequest
 import com.umt.memingoapp.domain.model.response.UserProfileResponse
 import com.umt.memingoapp.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,18 +25,14 @@ class ProfileViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+
+    private val _updateStatus = MutableStateFlow<Resource<Unit>?>(null)
+    val updateStatus: StateFlow<Resource<Unit>?> = _updateStatus
+
     fun fetchUserProfile(onResult: (Boolean, String?) -> Unit = { _, _ -> }) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-//                val token = context.getSharedPreferences("AuthPrefs", Context.MODE_PRIVATE)
-//                    .getString("token", null)
-//
-//                if (token.isNullOrBlank()) {
-//                    onResult(false, "Token not found")
-//                    _isLoading.value = false
-//                    return@launch
-//                }
 
                 val profile = repository.getUserProfile()
                 _userProfile.value = profile
@@ -47,5 +44,49 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateProfile(
+        name: String,
+        phone: String,
+        learningGoal: String,
+        onResult: (Boolean, String?) -> Unit = { _, _ -> }
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _updateStatus.value = Resource.Loading()
+            try {
+                val response = repository.updateProfile(
+                    UpdateProfileRequest(
+                        name = name,
+                        phone = phone,
+                        learning_goal = learningGoal
+                    )
+                )
+                _userProfile.value = response
+                _updateStatus.value = Resource.Success(Unit)
+                _isLoading.value = false
+                onResult(true, null)
+            } catch (e: Exception) {
+                _updateStatus.value = Resource.Error(e.message ?: "Failed to update profile")
+                _isLoading.value = false
+                onResult(false, e.message ?: "Failed to update profile")
+            }
+        }
+    }
+
+
+    fun clearUpdateStatus() {
+        _updateStatus.value = null
+    }
 }
 
+
+
+sealed class Resource<T>(
+    val data: T? = null,
+    val message: String? = null
+) {
+    class Success<T>(data: T) : Resource<T>(data)
+    class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
+    class Loading<T> : Resource<T>()
+}

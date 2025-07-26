@@ -33,5 +33,6 @@ sealed interface MainNavigation {
         override val icon = Icons.Default.Leaderboard
         override val title = "Leaderboard"
     }
+
 }
 

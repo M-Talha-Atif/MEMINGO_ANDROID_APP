@@ -19,6 +19,7 @@ import com.umt.memingoapp.presentation.chatScreen.ui.ChatScreen
 import com.umt.memingoapp.presentation.leaderboard.ui.screen.LeaderboardScreen
 import com.umt.memingoapp.presentation.lesson.ui.LessonScreenWithViewModel
 import com.umt.memingoapp.presentation.navigation.routes.Screen
+import com.umt.memingoapp.presentation.profile.ui.EditProfileScreen
 import com.umt.memingoapp.presentation.profile.viewmodel.ProfileViewModel
 
 @Composable
@@ -118,6 +119,12 @@ fun MyNavHost(navController: NavHostController) {
                 courseId = backStackEntry.arguments?.getString("courseId") ?: "",
                 courseName = backStackEntry.arguments?.getString("courseName") ?: ""
             )
+        }
+
+
+        composable(Screen.EditProfile.route) {
+            val profileViewModel: ProfileViewModel = hiltViewModel()
+            EditProfileScreen(navController, profileViewModel)
         }
     }
 
