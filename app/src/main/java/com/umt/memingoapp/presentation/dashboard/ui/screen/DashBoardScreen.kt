@@ -149,7 +149,7 @@ fun CourseHomeScreen(
                         title = "AI Chat",
                         description = "Talk to the AI assistant",
                         iconRes = R.drawable.av5, // replace with real icon
-                        onClick = { navController.navigate("ai_chat") }
+                        onClick = { navController.navigate(Screen.Chat.route) }
                     )
                     LearningModeCard(
                         title = "AR Scan",

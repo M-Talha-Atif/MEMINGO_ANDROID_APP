@@ -81,7 +81,8 @@ fun MyNavHost(navController: NavHostController) {
         }
 
         composable(Screen.Chat.route){
-            ChatScreen(navController)
+            ChatScreen(navController, navBack = { navController.popBackStack() },
+                onMenuClick = { /* Handle menu click */ })
         }
 
         composable("${Screen.VocabularyScreen.route}/{course_id}/{courseName}/{word}") { backStackEntry ->
