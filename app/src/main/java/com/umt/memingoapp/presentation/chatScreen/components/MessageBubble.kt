@@ -17,15 +17,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.umt.memingoapp.presentation.chatScreen.viewmodel.ChatViewModel
 import com.umt.memingoapp.presentation.theme.LogoColor
+
+
+
 
 @Composable
 fun MessageBubble(
     text: String,
     isUser: Boolean,
-    courseLanguage: String = "German" // For showing "Translated from ..."
+    courseLanguage: String = "German",
+    viewModel: ChatViewModel = hiltViewModel()
 ) {
     var showTranslationDialog by remember { mutableStateOf(false) }
+    val translation by viewModel.translation.collectAsState()
 
     Box(
         modifier = Modifier
@@ -33,43 +40,51 @@ fun MessageBubble(
             .padding(6.dp),
         contentAlignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 16.dp,
-                            topEnd = 16.dp,
-                            bottomStart = if (isUser) 16.dp else 0.dp,
-                            bottomEnd = if (isUser) 0.dp else 16.dp
-                        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .wrapContentWidth()
+                .widthIn(max = 280.dp)
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp,
+                        bottomStart = if (isUser) 16.dp else 0.dp,
+                        bottomEnd = if (isUser) 0.dp else 16.dp
                     )
-                    .background(if (isUser) LogoColor else Color.Gray.copy(alpha = 0.2f))
-                    .padding(12.dp)
-            ) {
-                Text(
-                    text = text,
-                    color = if (isUser) Color.White else Color.White,
-                    fontSize = 16.sp
                 )
-            }
+                .background(if (isUser) LogoColor else Color.Gray.copy(alpha = 0.2f))
+                .clickable {
+                    viewModel.translateMessage(text, courseLanguage)
+                    showTranslationDialog = true
+                }
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = text,
+                color = if (isUser) Color.White else Color.Black,
+                fontSize = 16.sp
+            )
 
-            // Show translate icon for AI messages
             if (!isUser) {
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.Default.Translate,
                     contentDescription = "Translate",
-                    tint = LogoColor,
+                    tint = Color.White,
                     modifier = Modifier
-                        .size(20.dp)
-                        .clickable { showTranslationDialog = true }
+                        .size(16.dp)
+                        .background(LogoColor, shape = RoundedCornerShape(50))
+                        .padding(2.dp)
+                        .clickable {
+                            viewModel.translateMessage(text, courseLanguage)
+                            showTranslationDialog = true
+                        }
                 )
             }
         }
     }
 
-    // Translation dialog
     if (showTranslationDialog) {
         AlertDialog(
             onDismissRequest = { showTranslationDialog = false },
@@ -78,7 +93,11 @@ fun MessageBubble(
                 Column {
                     Text("Original: $text", fontSize = 14.sp)
                     Spacer(Modifier.height(8.dp))
-                    Text("Translated: ${translateToEnglish(text)}", fontSize = 16.sp, color = LogoColor)
+                    Text(
+                        "Translated: ${translation ?: "Translating..."}",
+                        fontSize = 16.sp,
+                        color = LogoColor
+                    )
                     Spacer(Modifier.height(8.dp))
                     Text("Translated from $courseLanguage", fontSize = 12.sp, color = Color.Gray)
                 }
@@ -91,6 +110,7 @@ fun MessageBubble(
         )
     }
 }
+
 
 // Dummy translator function (replace with real API)
 fun translateToEnglish(text: String): String {

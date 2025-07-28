@@ -59,6 +59,11 @@ class LessonViewModel @Inject constructor(
 
     fun fetchLesson(lessonId: String) {
         viewModelScope.launch {
+            _uiState.value = LessonUiState.Loading
+            _flattenedQuestions.value = emptyList()
+            _questionResults.value = emptyList()
+            _currentQuestion.value = 0
+            _hearts.value = MAX_HEARTS
             try {
                 val lesson = repository.getLesson(lessonId)
                 val questions = flattenQuestions(lesson.activities)
@@ -72,6 +77,8 @@ class LessonViewModel @Inject constructor(
             }
         }
     }
+
+
 
 
     fun flattenQuestions(activities: List<Activity>): List<LessonQuestion> {

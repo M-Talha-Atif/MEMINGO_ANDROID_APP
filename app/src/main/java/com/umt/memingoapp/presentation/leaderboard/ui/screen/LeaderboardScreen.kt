@@ -41,7 +41,9 @@ import com.umt.memingoapp.presentation.theme.LogoColor
 @Composable
 fun LeaderboardScreen(
     navController: NavController,
-    viewModel: LeaderboardViewModel = hiltViewModel()
+    courseId: String,
+    viewModel: LeaderboardViewModel = hiltViewModel(),
+
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectedFilter by remember { mutableStateOf(TimeFilterType.ALL_TIME) }
@@ -50,9 +52,8 @@ fun LeaderboardScreen(
         viewModel.loadLeaderboard(selectedFilter.toApiParam())
     }
 
-    // --- Scaffold for nav bar ---
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController, "") }
+        bottomBar = { BottomNavigationBar(navController, courseId) }
     ) { padding ->
 
         // Use padding from Scaffold

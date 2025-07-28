@@ -111,13 +111,10 @@ fun LessonScreenWithViewModel(
 
 
 
-
-    LaunchedEffect(Unit) {
-        // Only load lesson if not loaded
-        if (uiState !is LessonUiState.Success) {
-            lessonViewModel.fetchLesson(lessonId)
-        }
+    LaunchedEffect(lessonId) {
+        lessonViewModel.fetchLesson(lessonId)
     }
+
 
     val lessonTitle = (uiState as? LessonUiState.Success)?.lesson?.title ?: "Lesson"
 

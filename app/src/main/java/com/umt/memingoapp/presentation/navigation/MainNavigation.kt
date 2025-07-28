@@ -22,11 +22,6 @@ sealed interface MainNavigation {
         override val title = "Profile"
     }
 
-    object Chat : MainNavigation {
-        override val route = Screen.Chat.route
-        override val icon = Icons.Default.Chat
-        override val title = "Chat"
-    }
 
     object Leaderboard : MainNavigation {
         override val route = Screen.Leaderboard.route

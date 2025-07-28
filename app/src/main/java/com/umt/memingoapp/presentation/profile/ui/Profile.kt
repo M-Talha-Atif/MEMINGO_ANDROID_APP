@@ -95,11 +95,22 @@ fun UserSettingsScreen(
                         iconRes = R.drawable.ic_privacy,
                         title = "Privacy & Security",
                         description = "Control your privacy settings"
+                    ),
+                    SettingsItem(
+                        iconRes = R.drawable.ic_logout,
+                        title = "Logout",
+                        description = "Sign out of your account"
                     )
                 ),
                 onItemClick = { item ->
                     when (item.title) {
                         "Edit Profile" -> navController.navigate(Screen.EditProfile.route)
+                        "Logout" -> {
+                            profileViewModel.logout()
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) // Clear backstack so user can’t go back
+                            }
+                        }
                     }
                 }
             )
@@ -248,19 +259,3 @@ data class SettingsItem(
     val title: String,
     val description: String,
 )
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewUserSettingsScreenLight() {
-//    MaterialTheme {
-//        UserSettingsScreen(rememberNavController(), "german-1")
-//    }
-//}
-//
-//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-//@Composable
-//fun PreviewUserSettingsScreenDark() {
-//    MaterialTheme {
-//        UserSettingsScreen(rememberNavController(), "german-1")
-//    }
-//}

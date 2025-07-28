@@ -1,6 +1,7 @@
 package com.umt.memingoapp.presentation.profile.viewmodel
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umt.memingoapp.domain.model.request.UpdateProfileRequest
@@ -18,6 +19,9 @@ class ProfileViewModel @Inject constructor(
     private val repository: ProfileRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
     private val _userProfile = MutableStateFlow<UserProfileResponse?>(null)
     val userProfile: StateFlow<UserProfileResponse?> = _userProfile
@@ -78,6 +82,11 @@ class ProfileViewModel @Inject constructor(
     fun clearUpdateStatus() {
         _updateStatus.value = null
     }
+
+    fun logout() {
+        sharedPreferences.edit().clear().apply()
+    }
+
 }
 
 

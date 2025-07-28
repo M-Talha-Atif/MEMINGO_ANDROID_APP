@@ -1,5 +1,6 @@
 package com.umt.memingoapp.presentation.chatScreen.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -7,79 +8,67 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.umt.memingoapp.R
 import com.umt.memingoapp.presentation.chatScreen.components.ChatInput
 import com.umt.memingoapp.presentation.chatScreen.components.ChatTopBar
 import com.umt.memingoapp.presentation.chatScreen.components.MessageBubble
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.umt.memingoapp.presentation.chatScreen.viewmodel.ChatViewModel
+
 
 @Composable
 fun ChatScreen(
     navController: NavController,
+    courseId: String,
     navBack: () -> Unit,
-    onMenuClick: () -> Unit
+    onMenuClick: () -> Unit,
+    viewModel: ChatViewModel = hiltViewModel()
 ) {
-    var messages by remember { mutableStateOf(listOf<Pair<String, Boolean>>()) }
+    val messages by viewModel.messages.collectAsState()
     var currentMessage by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
 
+    Log.d("Course ID", courseId)
 
-
+    // Load initial message
+    LaunchedEffect(courseId) {
+        viewModel.loadStarterMessage(courseId)
+    }
 
     Scaffold(
         topBar = { ChatTopBar(R.drawable.av5, onBack = navBack, onMenu = onMenuClick) }
     ) { padding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp),
+                reverseLayout = true
             ) {
-                // Messages list
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp),
-                    reverseLayout = true // reverses the direction of scrolling bottom-up
-                ) {
-                    items(messages.reversed()) { (text, isUser) ->
-                        MessageBubble(text = text, isUser = isUser)
-                    }
+                items(messages.reversed()) { (text, isUser) ->
+                    MessageBubble(text = text, isUser = isUser)
                 }
-
-                // Input (stays visible with keyboard)
-                ChatInput(
-                    message = currentMessage,
-                    onMessageChange = { currentMessage = it },
-                    onSend = {
-                        if (currentMessage.isNotBlank()) {
-                            val userMsg = currentMessage
-                            messages = messages + (userMsg to true)
-                            currentMessage = ""
-
-                            scope.launch {
-                                delay(1000)
-                                val dummyResponses = listOf(
-                                    "Hola! ¿Cómo puedo ayudarte hoy?",
-                                    "Hallo! Lass uns anfangen.",
-                                    "Bonjour! Prêt à apprendre?"
-                                )
-                                messages = messages + (dummyResponses.random() to false)
-                            }
-                        }
-                    },
-                    onVoice = { /* TODO: Voice */ },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .imePadding()
-                )
             }
+
+            ChatInput(
+                message = currentMessage,
+                onMessageChange = { currentMessage = it },
+                onSend = {
+                    viewModel.sendMessage(currentMessage, courseId)
+                    currentMessage = ""
+                },
+                onVoice = { /* TODO */ },
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .imePadding()
+            )
         }
     }
 }
+
 
 

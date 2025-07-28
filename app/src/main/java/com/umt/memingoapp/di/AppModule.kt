@@ -3,6 +3,7 @@ package com.umt.memingoapp.di
 import android.content.Context
 import com.google.gson.GsonBuilder
 import com.umt.memingoapp.data.repository.CourseRepositoryImpl
+import com.umt.memingoapp.data.repository.GeminiRepository
 import com.umt.memingoapp.data.repository.LeaderboardRepositoryImpl
 import com.umt.memingoapp.data.repository.ProfileRepositoryImpl
 import com.umt.memingoapp.data.source.remote.service.AuthenticationService
@@ -101,4 +102,12 @@ object AppModule {
     fun provideLeaderboardRepository(api: LeaderboardService): LeaderboardRepository {
         return LeaderboardRepositoryImpl(api)
     }
+
+    @Provides
+    @Singleton
+    fun provideGeminiRepository(): GeminiRepository {
+        val apiKey = "AIzaSyDwFEkSwh7qD2-5NUsGMUOReDow6xzvxSc"
+        return GeminiRepository(apiKey)
+    }
+
 }

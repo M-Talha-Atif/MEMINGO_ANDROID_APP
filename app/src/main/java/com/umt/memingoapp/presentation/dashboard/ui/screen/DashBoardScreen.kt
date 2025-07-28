@@ -37,7 +37,6 @@ import java.time.ZoneId
 @Composable
 fun PreviewDashboardScreen() {
     val mockNavController = rememberNavController()
-    // You might want to provide a mock CourseViewModel here for preview
     CourseHomeScreen(mockNavController, "german-1")
 }
 @Composable
@@ -59,9 +58,38 @@ fun CourseHomeScreen(
         } ?: "Hello!"
     }
 
+
+
     LaunchedEffect(Unit) {
         profileViewModel.fetchUserProfile()
+        viewModel.getCourseDetails(courseId).collectLatest { result ->
+            when (result) {
+                is ResultType.Loading -> {
+                    courseState.value = null
+                    lessonsState.clear()
+                }
+                is ResultType.Success -> {
+                    courseState.value = result.data
+                    lessonsState.clear()
+                    lessonsState.addAll(
+                        result.data.lessons.map { l ->
+                            Lesson(
+                                id = l.id,
+                                title = l.title,
+                                type = l.type,
+                                score = l.quizScore?.toInt() ?: 0,
+                                locked = l.status == "locked"
+                            )
+                        }
+                    )
+                }
+                is ResultType.Error -> {
+
+                }
+            }
+        }
     }
+
 
     LaunchedEffect(Unit) {
         viewModel.getCourseDetails(courseId).collectLatest { result ->
@@ -148,8 +176,8 @@ fun CourseHomeScreen(
                     LearningModeCard(
                         title = "AI Chat",
                         description = "Talk to the AI assistant",
-                        iconRes = R.drawable.av5, // replace with real icon
-                        onClick = { navController.navigate(Screen.Chat.route) }
+                        iconRes = R.drawable.av5,
+                        onClick = { navController.navigate("${Screen.Chat.route}/${courseId}") }
                     )
                     LearningModeCard(
                         title = "AR Scan",

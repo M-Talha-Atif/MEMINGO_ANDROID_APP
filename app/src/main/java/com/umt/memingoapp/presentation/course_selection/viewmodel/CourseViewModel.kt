@@ -97,6 +97,7 @@ class CourseViewModel  @Inject constructor(
 
 
     fun getCourseDetails(courseId: String): Flow<ResultType<SingleCourseResponse>> = flow {
+        emit(ResultType.Loading)
         try {
             val details = courseRepository.getCourseDetails(courseId)
             emit(ResultType.Success(details))

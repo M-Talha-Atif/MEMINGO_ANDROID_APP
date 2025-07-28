@@ -112,4 +112,59 @@ class GeminiRepository(apiKey: String) {
             throw e
         }
     }
+
+    suspend fun generateTutorResponse(
+        userMessage: String,
+        courseLanguage: String
+    ): String = withContext(Dispatchers.IO) {
+        try {
+            val prompt = """
+            You are an AI language tutor for $courseLanguage. 
+            The student can write in any language, but you must always respond in $courseLanguage. 
+            Keep responses simple and conversational, as if chatting with a student. 
+            If it's the first message, greet them warmly and ask what they want to learn today.
+        """.trimIndent()
+
+            val response = generativeModel.generateContent("$prompt\nStudent: $userMessage\nTutor:")
+            response.text ?: "I'm ready to help you learn $courseLanguage!"
+        } catch (e: Exception) {
+            Log.e("GeminiRepository", "Error generating tutor response", e)
+            "Sorry, I couldn’t process that. Try again!"
+        }
+    }
+
+    suspend fun generateStarterMessage(
+        courseLanguage: String
+    ): String = withContext(Dispatchers.IO) {
+        try {
+            val prompt = """
+            You are an AI language tutor for $courseLanguage. 
+            Greet the student warmly and ask them what they would like to learn today. Keep it friendly and short.
+        """.trimIndent()
+
+            val response = generativeModel.generateContent(prompt)
+            response.text ?: "Hello! Ready to start learning $courseLanguage?"
+        } catch (e: Exception) {
+            "Hello! Ready to start learning $courseLanguage?"
+        }
+    }
+
+    suspend fun translateToEnglish(text: String, sourceLanguage: String): String = withContext(Dispatchers.IO) {
+        try {
+            val prompt = """
+            Translate the following $sourceLanguage text to English. 
+            Return only the translated text, no extra explanation:
+            
+            "$text"
+        """.trimIndent()
+
+            val response = generativeModel.generateContent(prompt)
+            response.text?.trim() ?: "Translation unavailable"
+        } catch (e: Exception) {
+            Log.e("GeminiRepository", "Error translating text", e)
+            "Translation failed"
+        }
+    }
+
+
 }

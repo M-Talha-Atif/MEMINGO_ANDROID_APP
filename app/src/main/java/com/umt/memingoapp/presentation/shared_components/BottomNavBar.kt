@@ -43,7 +43,6 @@ fun BottomNavigationBar(navController: NavController, courseId: String) {
     val navigationItems = listOf(
         MainNavigation.Home,
         MainNavigation.Profile,
-        MainNavigation.Chat,
         MainNavigation.Leaderboard
     )
 
@@ -64,13 +63,15 @@ fun BottomNavigationBar(navController: NavController, courseId: String) {
         indicatorColor = colorScheme.primary.copy(alpha = 0.1f)
     ) {
         navigationItems.forEachIndexed { index, item ->
+
             BottomBarItem(
                 modifier = Modifier,
                 selected = currentRoute?.startsWith(item.route) == true,
                 onClick = {
                     if (currentRoute?.startsWith(item.route) != true) {
                         selectedItem = index
-                        val routeWithId = if (item == MainNavigation.Home || item == MainNavigation.Profile) {
+                        val routeWithId = if (item == MainNavigation.Home || item == MainNavigation.Profile ||
+                            item == MainNavigation.Leaderboard) {
                             "${item.route}/$courseId"
                         } else item.route
 
@@ -118,154 +119,5 @@ fun BottomNavigationBar(navController: NavController, courseId: String) {
     }
 }
 
-//
-//
-//@Composable
-//fun BottomNavigationBar(navController: NavController, courseId: String) {
-//    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
-//
-//    val containerColor = MaterialTheme.colorScheme.surface
-//    val contentColor = MaterialTheme.colorScheme.onSurface
-//    val indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-//    AnimatedBottomBar(
-//        selectedItem = selectedItem,
-//        itemSize = navigationItems.take(3).size,
-//        containerColor = Color.LightGray,
-//        indicatorStyle = IndicatorStyle.LINE
-//    ) {
-//        navigationItems.forEachIndexed { index, navigationItem ->
-//            BottomBarItem(
-//                selected = currentRoute == navigationItem.route,
-//                onClick = {
-//                    if (currentRoute != navigationItem.route) {
-//                        selectedItem = index
-//                        // ... Navigation Stuff
-//                    }
-//                },
-//                imageVector = navigationItem.icon,
-//                label = navigationItem.title,
-//                containerColor = Color.Transparent
-//            )
-//        }
-//    }
-//
-//    NavigationBar(
-//        containerColor = containerColor,
-//        tonalElevation = 10.dp,
-//    ) {
-//        BottomNavItem(
-//            route = "${Screen.Dashboard.route}/$courseId",
-//            icon = Icons.Default.Home,
-//            label = "Home",
-//            navController = navController,
-//            currentRoute = currentDestination,
-//            indicatorColor = indicatorColor,
-//            contentColor = contentColor
-//        )
-//        BottomNavItem(
-//            route = "${Screen.Profile.route}/$courseId",
-//            icon = Icons.Default.Person,
-//            label = "Profile",
-//            navController = navController,
-//            currentRoute = currentDestination,
-//            indicatorColor = indicatorColor,
-//            contentColor = contentColor
-//        )
-//        BottomNavItem(
-//            route = Screen.Chat.route,
-//            icon = Icons.Default.Chat,
-//            label = "Chat",
-//            navController = navController,
-//            currentRoute = currentDestination,
-//            indicatorColor = indicatorColor,
-//            contentColor = contentColor
-//        )
-//        BottomNavItem(
-//            route = Screen.Leaderboard.route,
-//            icon = Icons.Default.Leaderboard,
-//            label = "Leaderboard",
-//            navController = navController,
-//            currentRoute = currentDestination,
-//            indicatorColor = indicatorColor,
-//            contentColor = contentColor
-//        )
-//    }
-//}
-//
-//
-//@Composable
-//private fun RowScope.BottomNavItem(
-//    route: String,
-//    icon: ImageVector,
-//    label: String,
-//    navController: NavController,
-//    currentRoute: String?,
-//    indicatorColor: Color,
-//    contentColor: Color
-//) {
-//    val isSelected = currentRoute?.startsWith(route) == true
-//
-//    val backgroundColor by animateColorAsState(
-//        targetValue = if (isSelected) indicatorColor else Color.Transparent,
-//        animationSpec = tween(durationMillis = 300), label = ""
-//    )
-//
-//    val iconScale by animateFloatAsState(
-//        targetValue = if (isSelected) 1.15f else 1f,
-//        animationSpec = tween(durationMillis = 300), label = ""
-//    )
-//
-//    NavigationBarItem(
-//        selected = isSelected,
-//        onClick = {
-//            if (!isSelected) {
-//                navController.navigate(route) {
-//                    launchSingleTop = true
-//                    restoreState = true
-//                }
-//            }
-//        },
-//        icon = {
-//            Box(
-//                modifier = Modifier
-//                    .size(36.dp)
-//                    .scale(iconScale)
-//                    .background(
-//                        color = backgroundColor,
-//                        shape = RoundedCornerShape(8.dp)
-//                    )
-//                    .then(
-//                        if (isSelected) Modifier
-//                            .border(
-//                                width = 1.dp,
-//                                color = MaterialTheme.colorScheme.primary,
-//                                shape = RoundedCornerShape(8.dp)
-//                            )
-//                            .shadow(
-//                                elevation = 4.dp,
-//                                shape = RoundedCornerShape(8.dp),
-//                                clip = false
-//                            )
-//                        else Modifier
-//                    ),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Icon(
-//                    imageVector = icon,
-//                    contentDescription = label,
-//                    tint = if (isSelected) MaterialTheme.colorScheme.primary else contentColor
-//                )
-//            }
-//        },
-//        label = {
-//            Text(
-//                text = label,
-//                color = if (isSelected) MaterialTheme.colorScheme.primary else contentColor,
-//                style = MaterialTheme.typography.labelSmall
-//            )
-//        },
-//        alwaysShowLabel = true
-//    )
-//}
 
 

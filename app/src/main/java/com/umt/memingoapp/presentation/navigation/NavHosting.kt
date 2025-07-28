@@ -76,12 +76,17 @@ fun MyNavHost(navController: NavHostController) {
             )
         }
 
-        composable(Screen.Leaderboard.route){
-            LeaderboardScreen(navController)
+        composable("${Screen.Leaderboard.route}/{course_id}"){
+                backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("course_id") ?: ""
+            LeaderboardScreen(navController, courseId)
         }
 
-        composable(Screen.Chat.route){
+        composable("${Screen.Chat.route}/{course_id}"){
+                backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("course_id") ?: ""
             ChatScreen(navController, navBack = { navController.popBackStack() },
+                courseId = courseId,
                 onMenuClick = { /* Handle menu click */ })
         }
 
