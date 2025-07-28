@@ -60,13 +60,17 @@ fun ARLearningScreen(
     }
 
     when (val state = uiState) {
+
         is ARLearningUiState.Loading -> {
-            Log.d(TAG, "Showing loading state")
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                LoadingAnimation()
-                Text("Loading content for $wordName...")
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    LoadingAnimation()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    AnimatedLoadingText(wordName)
+                }
             }
         }
+
 
         is ARLearningUiState.Error -> {
             Log.e(TAG, "Error state: ${state.message}")

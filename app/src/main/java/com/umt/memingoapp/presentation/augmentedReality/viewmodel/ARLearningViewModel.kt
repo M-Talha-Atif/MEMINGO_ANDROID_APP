@@ -19,7 +19,7 @@ class ARLearningViewModel(
     private var currentJob: Job? = null
 
     fun generateContent(word: String, language: String) {
-        currentJob?.cancel() // Cancel previous request if any
+        currentJob?.cancel()
         currentJob = viewModelScope.launch {
             _uiState.value = ARLearningUiState.Loading
             try {
@@ -34,7 +34,6 @@ class ARLearningViewModel(
 
     fun cleanupResources() {
         currentJob?.cancel()
-//        objectDetector.cleanUp()
     }
 
     override fun onCleared() {
