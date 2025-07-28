@@ -154,7 +154,7 @@ fun CourseHomeScreen(
                     LearningModeCard(
                         title = "AR Scan",
                         description = "Object-based learning",
-                        iconRes = R.drawable.plane,
+                        iconRes = R.drawable.av1,
                         onClick = {
                             navController.navigate("${Screen.ARScreen.route}/${courseName}/${courseId}")
                         }
